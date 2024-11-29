@@ -1,6 +1,6 @@
 import { axiosInstance } from "@/lib";
 
-export const fetchTemplates = async () => {
+export const fetchAllTemplates = async () => {
   try {
     const response = await axiosInstance.get("/templates");
     return response.data;

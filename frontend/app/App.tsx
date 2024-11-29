@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"; // Forces dynamic rendering
+
 import Link from "next/link";
 import {
   Avatar,
@@ -12,11 +14,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui";
 import { CircleUserRoundIcon } from "lucide-react";
-import { fetchTemplates } from "@/services";
+import { fetchAllTemplates } from "@/services";
 import TemplateList from "@/components/TemplateList";
 
 export const Dashboard = async () => {
-  const templates = await fetchTemplates();
+  const templates = await fetchAllTemplates();
 
   return (
     <>
