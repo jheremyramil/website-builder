@@ -35,7 +35,7 @@ class AuthController extends Controller
             return $this->success([
                 'user' => $user,
                 'token' =>  $token
-            ], 'User logged in success!', 200);
+            ], 'User logged in success!', 200, false);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }

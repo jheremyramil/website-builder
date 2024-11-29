@@ -10,7 +10,7 @@ export const fetchAllTemplates = async () => {
   }
 };
 
-export const fetchTemplateById = async (id: string) => {
+export const fetchTemplateById = async (id: number) => {
   try {
     const response = await axiosInstance.get(`/templates/${id}`);
     return response.data;
@@ -30,7 +30,7 @@ export const createTemplate = async (templateData: any) => {
   }
 };
 
-export const updateTemplate = async (id: string, templateData: any) => {
+export const updateTemplate = async (id: number, templateData: any) => {
   try {
     const response = await axiosInstance.put(`/templates/${id}`, templateData);
     return response.data;
@@ -40,7 +40,7 @@ export const updateTemplate = async (id: string, templateData: any) => {
   }
 };
 
-export const deleteTemplate = async (id: string) => {
+export const deleteTemplate = async (id: number) => {
   try {
     const response = await axiosInstance.delete(`/templates/${id}`);
     return response.data;

@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic"; // Forces dynamic rendering
-
 import Link from "next/link";
 import {
   Avatar,
