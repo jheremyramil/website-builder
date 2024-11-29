@@ -71,7 +71,7 @@ class AuthController extends Controller
             return $this->success([
                 'user' => $user,
                 'token' => $token
-            ], 'Registration Success', 200);
+            ], 'Registration Success', 200, false);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
@@ -84,7 +84,7 @@ class AuthController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
 
-        return $this->success([], 'Logout successful.');
+        return $this->success([], 'Logout successful.', 200);
     }
 
     /**
@@ -92,6 +92,12 @@ class AuthController extends Controller
      */
     public function me(Request $request)
     {
-        return $this->success($request->user(), 'User details fetched successfully.');
+        // Retrieve the authenticated user
+        $user = $request->user();
+
+        // Return the authenticated user's details
+        return $this->success([
+            'user' => $user,
+        ], 'User details fetched successfully.', 200, false);
     }
 }
