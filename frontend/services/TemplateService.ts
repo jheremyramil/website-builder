@@ -1,11 +1,16 @@
-import { axiosInstance } from "@/lib";
+import { axiosInstance, verifySession } from "@/lib";
+import { cache } from "react";
 
-export async function fetchAllTemplates() {
+export const fetchAllTemplates = cache(async () => {
+  const session = await verifySession();
+  if (!session) return null;
+
   try {
     const response = await axiosInstance.get("/templates");
 
     return response.data;
   } catch (error) {
-    console.error("Failed to login", error);
+    console.error("Failed to fetch templates", error);
+    return null;
   }
-}
+});

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { fetchAllTemplates } from "@/services";
 import {
   Button,
   Table,
@@ -9,13 +9,10 @@ import {
   TableHeader,
   TableRow,
 } from "../ui";
-import { use } from "react";
+import Link from "next/link";
 
-const TemplateList = ({
-  templatesPromise,
-}: {
-  templatesPromise: Promise<any>;
-}) => {
+const TemplateList = async () => {
+  const templates = await fetchAllTemplates();
   return (
     <Table>
       <TableCaption>A list of your recent invoices.</TableCaption>
@@ -27,7 +24,7 @@ const TemplateList = ({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {/* {templates?.length ? (
+        {templates?.length ? (
           templates?.map((template: any) => (
             <TableRow key={template.id}>
               <TableCell>{template.id}</TableCell>
@@ -46,7 +43,7 @@ const TemplateList = ({
           <div className="text-xl font-semibold leading-6">
             No Templates to show!
           </div>
-        )} */}
+        )}
       </TableBody>
     </Table>
   );

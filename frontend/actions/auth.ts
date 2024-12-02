@@ -29,14 +29,13 @@ export const signinAction = async (state: FormState, formData: FormData) => {
     const response = await login(email, password);
     const { user, token } = response;
     await createSession(user.id, token);
+    return { user };
   } catch (error) {
     console.error("Sign-in error:", error);
     return {
       message: "Invalid email or password. Please try again.",
     };
   }
-
-  redirect("/dashboard");
 };
 
 export const signupAction = async (state: FormState, formData: FormData) => {

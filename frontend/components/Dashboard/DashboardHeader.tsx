@@ -1,6 +1,6 @@
 "use client";
-
 import { logoutAction } from "@/actions";
+import { CircleUserRoundIcon } from "lucide-react";
 import {
   Avatar,
   AvatarFallback,
@@ -12,17 +12,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui";
-import { CircleUserRoundIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 const DashboardHeader = () => {
-  const router = useRouter();
-
-  const handleLogout = async () => {
-    await logoutAction();
-    router.push("/login");
-  };
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="flex items-center justify-center gap-x-2 rounded-xl bg-gray-100 px-4 py-2">
@@ -35,14 +26,26 @@ const DashboardHeader = () => {
 
         <span className="text-sm leading-6 font-semibold">Administrator</span>
       </DropdownMenuTrigger>
-      <DropdownMenuContent onCloseAutoFocus={(e) => e.preventDefault()}>
+      <DropdownMenuContent>
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem>Profile</DropdownMenuItem>
-        <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+        <LogoutItem />
       </DropdownMenuContent>
     </DropdownMenu>
   );
 };
 
 export default DashboardHeader;
+
+const LogoutItem = () => {
+  const handleLogout = async () => {
+    try {
+      await logoutAction();
+    } catch (error) {
+      console.error("Failed to log out:", error);
+    }
+  };
+
+  return <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>;
+};

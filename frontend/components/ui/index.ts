@@ -7,3 +7,4 @@ export * from "./input";
 export * from "./skeleton";
 export * from "./table";
 export * from "./tabs";
+export * from "./toast";

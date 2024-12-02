@@ -1,3 +1,5 @@
+"use server";
+
 import axios from "axios";
 import { cookies } from "next/headers";
 import { decrypt } from "./session";
@@ -15,9 +17,10 @@ export const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   async (config) => {
     const cookie = (await cookies()).get("session")?.value;
+    const session = cookie ? await decrypt(cookie) : null;
 
-    if (cookie) {
-      config.headers.Authorization = `Bearer ${cookie}`;
+    if (session) {
+      config.headers.Authorization = `Bearer ${session.token}`;
     }
     return config;
   },

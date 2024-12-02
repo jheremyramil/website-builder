@@ -2,10 +2,31 @@
 
 import { signinAction } from "@/actions";
 import { Button, Input } from "@/components/ui";
-import { useActionState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import Form from "next/form";
+import { useRouter } from "next/navigation";
+import { useActionState, useEffect } from "react";
 
 const Login = () => {
+  const { toast } = useToast();
+  const router = useRouter();
   const [state, action, isPending] = useActionState(signinAction, undefined);
+
+  useEffect(() => {
+    if (state?.user && !isPending) {
+      toast({
+        title: "Welcome back!",
+        description: `Hi, ${state?.user.name}!`,
+        variant: "success",
+      });
+
+      const timeoutId = setTimeout(() => {
+        router.push("/dashboard");
+      }, 1000);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [state?.user, isPending, router, toast]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-700 to-gray-950 gap-x-20">
@@ -16,7 +37,7 @@ const Login = () => {
           Welcome Back!
         </h2>
 
-        <form action={action}>
+        <Form action={action}>
           {/* Email Input */}
           <div className="mb-4">
             <label className="block mb-2 text-sm font-medium text-gray-700">
@@ -58,7 +79,7 @@ const Login = () => {
           >
             {isPending ? "Logging In..." : "Log In"}
           </Button>
-        </form>
+        </Form>
 
         {/* Footer */}
         <p className="mt-6 text-sm text-gray-600">

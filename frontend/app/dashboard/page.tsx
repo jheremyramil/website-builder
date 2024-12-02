@@ -1,6 +1,9 @@
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
+import TemplateList from "@/components/TemplateList";
+import TableSkeleton from "@/components/TemplateList/loading";
 import { Button } from "@/components/ui";
 import Link from "next/link";
+import { Suspense } from "react";
 
 export const DashboardPage = async () => {
   return (
@@ -19,9 +22,8 @@ export const DashboardPage = async () => {
           </header>
 
           <section>
-            {/* <Suspense fallback={<TableSkeleton />}>
-              <TemplateList templatesPromise={templates} />
-            </Suspense> */}
+            {/* Use Suspense fallback as necessary  */}
+            <TemplateList />
           </section>
         </main>
       </div>
