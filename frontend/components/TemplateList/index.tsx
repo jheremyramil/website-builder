@@ -1,38 +1,38 @@
-import { Table } from "lucide-react";
-import React from "react";
+import Link from "next/link";
 import {
+  Button,
+  Table,
+  TableBody,
   TableCaption,
+  TableCell,
+  TableHead,
   TableHeader,
   TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-  Button,
 } from "../ui";
-import Link from "next/link";
+import { use } from "react";
 
-interface TemplateListProps {
-  templates: any;
-}
-
-const TemplateList = ({ templates }: TemplateListProps) => {
+const TemplateList = ({
+  templatesPromise,
+}: {
+  templatesPromise: Promise<any>;
+}) => {
   return (
     <Table>
       <TableCaption>A list of your recent invoices.</TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[100px]">Invoice</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Method</TableHead>
-          <TableHead className="text-right">Amount</TableHead>
+          <TableHead className="w-[100px]">ID</TableHead>
+          <TableHead>HTML</TableHead>
+          <TableHead>Created At</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {templates.length ? (
+        {/* {templates?.length ? (
           templates?.map((template: any) => (
             <TableRow key={template.id}>
-              <TableCell>{template.name}</TableCell>
-              <TableCell>{template.createdAt}</TableCell>
+              <TableCell>{template.id}</TableCell>
+              <TableCell>{template.html}</TableCell>
+              <TableCell>{template.created_at}</TableCell>
               <TableCell>
                 <Link href={`/editor/${template.id}`}>
                   <Button variant="secondary" size="sm">
@@ -43,10 +43,10 @@ const TemplateList = ({ templates }: TemplateListProps) => {
             </TableRow>
           ))
         ) : (
-          <h3 className="text-xl font-semibold leading-6">
+          <div className="text-xl font-semibold leading-6">
             No Templates to show!
-          </h3>
-        )}
+          </div>
+        )} */}
       </TableBody>
     </Table>
   );

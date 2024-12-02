@@ -3,5 +3,7 @@ export * from "./avatar";
 export * from "./button";
 export * from "./dialog";
 export * from "./dropdown-menu";
-export * from "./tabs";
+export * from "./input";
+export * from "./skeleton";
 export * from "./table";
+export * from "./tabs";

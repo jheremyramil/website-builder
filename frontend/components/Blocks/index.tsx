@@ -1,11 +1,15 @@
+"use client";
+
 import { CircleXIcon } from "lucide-react";
+import { useState } from "react";
 
-interface BlocksProps {
-  isVisible: boolean;
-  onClose: () => void;
-}
+const Blocks = () => {
+  const [isVisible, setIsVisible] = useState(false);
 
-const Blocks = ({ isVisible, onClose }: BlocksProps) => {
+  const toggleBlocks = () => {
+    setIsVisible((prev) => !prev);
+  };
+
   return (
     <>
       {/* Overlay for mobile screens */}
@@ -13,7 +17,7 @@ const Blocks = ({ isVisible, onClose }: BlocksProps) => {
         className={`fixed inset-0 bg-black bg-opacity-30 transition-opacity duration-300 ease-in-out md:hidden ${
           isVisible ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
-        onClick={onClose}
+        onClick={toggleBlocks}
       ></div>
 
       {/* Sidebar */}
@@ -25,7 +29,7 @@ const Blocks = ({ isVisible, onClose }: BlocksProps) => {
         {/* Close Button (Mobile only) */}
         <button
           className="absolute top-4 right-4 md:hidden p-2"
-          onClick={onClose}
+          onClick={toggleBlocks}
         >
           <CircleXIcon className="h-6 w-6 stroke-current text-gray-600" />
         </button>

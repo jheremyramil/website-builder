@@ -17,22 +17,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui";
-import Tools from "./Tools";
 import Devices from "./Devices";
+import Tools from "./Tools";
 
-interface NavbarProps {
-  toggleSidebar?: () => void;
-}
-
-const Navbar = ({ toggleSidebar }: NavbarProps) => {
+const Navbar = () => {
   return (
     <div className="flex h-screen flex-1 flex-col">
       <header className="h-18 bg-white flex justify-between px-8 items-center border-b border-gray-200 gap-x-6">
         <div className="flex items-center justify-center gap-x-3">
-          <button
-            className="flex items-center justify-center rounded-xl bg-gray-100 p-2"
-            onClick={toggleSidebar}
-          >
+          <button className="flex items-center justify-center rounded-xl bg-gray-100 p-2">
             <MenuIcon className="h-6 w-6 stroke-current text-gray-400" />
           </button>
 

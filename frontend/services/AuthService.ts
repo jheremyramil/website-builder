@@ -1,39 +1,28 @@
 import { axiosInstance } from "@/lib";
 
-export const signIn = async ({
-  email,
-  password,
-}: {
-  email: string;
-  password: string;
-}) => {
+export async function login(email: string, password: string) {
   try {
-    // Get CSRF Token
-    await axiosInstance.get("/sanctum/csrf-cookie");
-
     const response = await axiosInstance.post("/login", {
       email,
       password,
     });
 
-    // Store token in localStorage
-
-    const { token } = response.data;
-    localStorage.setItem("token", token);
-
     return response.data;
   } catch (error) {
-    console.error("Error loggin in:", error);
-    throw error;
+    console.error("Failed to login", error);
   }
-};
+}
 
-export const signUp = async (formData: any) => {
+export async function register(name: string, email: string, password: string) {
   try {
-    const response = await axiosInstance.post("/register", { formData });
+    const response = await axiosInstance.post("/register", {
+      name,
+      email,
+      password,
+    });
+
     return response.data;
   } catch (error) {
-    console.error("Error loggin in:", error);
-    throw error;
+    console.error("Failed to Register", error);
   }
-};
+}

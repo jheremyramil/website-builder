@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect } from "react";
 import { EditorView } from "@codemirror/view";
 import { Editor } from "grapesjs";
