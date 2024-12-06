@@ -27,7 +27,6 @@ export const signinAction = async (state: FormState, formData: FormData) => {
 
   try {
     const response = await login(email, password);
-    console.log(response, "response");
     const { user, token } = response;
     await createSession(user.id, token);
     return { user };
@@ -53,12 +52,11 @@ export const signupAction = async (state: FormState, formData: FormData) => {
     };
   }
 
-  const { name, email, password } = validatedFields.data;
-
   try {
     // register
-    const response = await register(name, email, password);
-    const { user, token } = response.data;
+    const response = await register(validatedFields.data);
+
+    const { user, token } = response;
 
     if (!user || !token) {
       return {
@@ -68,6 +66,8 @@ export const signupAction = async (state: FormState, formData: FormData) => {
     }
 
     await createSession(user.id, token);
+
+    return { user };
   } catch (error: any) {
     console.error("Sign-up error:", error);
     return {
@@ -75,8 +75,6 @@ export const signupAction = async (state: FormState, formData: FormData) => {
       message: error.message || "An error occurred while creating an account.",
     };
   }
-
-  redirect("/dashboard");
 };
 
 export const logoutAction = async () => {

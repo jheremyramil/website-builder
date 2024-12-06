@@ -1,6 +1,6 @@
 "use client";
 
-import { signinAction } from "@/actions";
+import { signupAction } from "@/actions";
 import { Button, Input } from "@/components/ui";
 import { useToast } from "@/hooks/use-toast";
 import Form from "next/form";
@@ -8,15 +8,31 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect } from "react";
 
-const Login = () => {
+const Register = () => {
   const { toast } = useToast();
   const router = useRouter();
-  const [state, action, isPending] = useActionState(signinAction, undefined);
+  const [state, action, isPending] = useActionState(signupAction, undefined);
 
   useEffect(() => {
+    if (state?.errors?.email) {
+      toast({
+        title: "Something went wrong",
+        description: "Email must be a valid email address format",
+        variant: "destructive",
+      });
+    }
+
+    if (state?.errors?.password) {
+      toast({
+        title: "Password validation fail!",
+        description: "Password must meet the criteria",
+        variant: "destructive",
+      });
+    }
+
     if (state?.user && !isPending) {
       toast({
-        title: "Welcome back!",
+        title: "Welcome!",
         description: `Hi, ${state?.user.name}!`,
         variant: "success",
       });
@@ -35,10 +51,19 @@ const Login = () => {
 
       <div className="w-full max-w-md p-6 bg-white shadow-md rounded-md lg:w-1/2">
         <h2 className="text-2xl font-semibold text-gray-800 mb-6">
-          Welcome Back!
+          Create an Account
         </h2>
 
         <Form action={action}>
+          {/* Name Input  */}
+          <div className="mb-4">
+            <label className="block mb-2 text-sm font-medium text-gray-700">
+              Name
+            </label>
+            <Input type="text" name="name" placeholder="Name" required />
+          </div>
+          {state?.errors?.name && <p>{state.errors.name}</p>}
+
           {/* Email Input */}
           <div className="mb-4">
             <label className="block mb-2 text-sm font-medium text-gray-700">
@@ -62,10 +87,12 @@ const Login = () => {
           </div>
           {state?.errors?.password && (
             <div>
-              <p>Password must:</p>
+              <p className="text-gray-800 font-semibold">Password must:</p>
               <ul>
                 {state.errors.password.map((error) => (
-                  <li key={error}>- {error}</li>
+                  <li className="text-red-600 text-sm " key={error}>
+                    {error}
+                  </li>
                 ))}
               </ul>
             </div>
@@ -78,15 +105,15 @@ const Login = () => {
             size="lg"
             disabled={isPending}
           >
-            {isPending ? "Logging in..." : "Login"}
+            {isPending ? "Creating an account..." : "Create account"}
           </Button>
         </Form>
 
         {/* Footer */}
         <p className="mt-6 text-sm text-gray-600">
-          Don't have an account?{" "}
-          <Link href="/register" className="text-blue-600 hover:underline">
-            Sign Up
+          Already have an account?{" "}
+          <Link href="/login" className="text-blue-600 hover:underline">
+            Login
           </Link>
         </p>
       </div>
@@ -94,4 +121,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
