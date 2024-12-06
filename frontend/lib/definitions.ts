@@ -22,6 +22,13 @@ export const SignupFormSchema = z.object({
     .trim(),
 });
 
+export const CreatePageSchema = z.object({
+  name: z
+    .string()
+    .min(3, { message: "Page name must be at least 3 characters long. " })
+    .trim(),
+});
+
 export type FormState =
   | {
       user?: any;

@@ -1,8 +1,10 @@
+"use client";
+
 import {
   ChevronDownIcon,
+  CircleArrowLeftIcon,
   CircleUserRoundIcon,
   EyeIcon,
-  MenuIcon,
 } from "lucide-react";
 
 import {
@@ -19,15 +21,20 @@ import {
 } from "@/components/ui";
 import Devices from "./Devices";
 import Tools from "./Tools";
+import Link from "next/link";
+import { logoutAction } from "@/actions";
 
 const Navbar = () => {
   return (
     <div className="flex h-screen flex-1 flex-col">
       <header className="h-18 bg-white flex justify-between px-8 items-center border-b border-gray-200 gap-x-6">
         <div className="flex items-center justify-center gap-x-3">
-          <button className="flex items-center justify-center rounded-xl bg-gray-100 p-2">
-            <MenuIcon className="h-6 w-6 stroke-current text-gray-400" />
-          </button>
+          <Link
+            href="/dashboard"
+            className="flex items-center justify-center rounded-xl p-2"
+          >
+            <CircleArrowLeftIcon className="h-6 w-6 stroke-current text-gray-400" />
+          </Link>
 
           {/* Show page details  */}
           <button className="flex flex-col rounded-xl border border-gray-200 bg-gray-100 px-6 py-2">
@@ -49,9 +56,11 @@ const Navbar = () => {
 
         <div className="flex gap-x-3">
           {/* Panel Devices  */}
-          <Devices />
+          {/* <div className="panel__devices"></div>
+          <div className="panel__editor"></div>
+          <div className="panel__basic-actions"></div> */}
 
-          {/* Tools  */}
+          <Devices />
           <Tools />
         </div>
 
@@ -81,11 +90,11 @@ const Navbar = () => {
                 Administrator
               </span>
             </DropdownMenuTrigger>
-            <DropdownMenuContent onCloseAutoFocus={(e) => e.preventDefault()}>
+            <DropdownMenuContent>
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <LogoutItem />
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -95,3 +104,15 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
+const LogoutItem = () => {
+  const handleLogout = async () => {
+    try {
+      await logoutAction();
+    } catch (error) {
+      console.error("Failed to log out:", error);
+    }
+  };
+
+  return <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>;
+};

@@ -27,6 +27,7 @@ export const signinAction = async (state: FormState, formData: FormData) => {
 
   try {
     const response = await login(email, password);
+    console.log(response, "response");
     const { user, token } = response;
     await createSession(user.id, token);
     return { user };

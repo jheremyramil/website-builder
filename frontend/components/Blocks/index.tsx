@@ -22,7 +22,7 @@ const Blocks = () => {
 
       {/* Sidebar */}
       <aside
-        className={`h-screen w-full md:w-60 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out  md:relative   ${
+        className={`h-screen w-full md:w-60 bg-[#444] border-r border-[#444] transform transition-transform duration-300 ease-in-out  md:relative   ${
           isVisible ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         }`}
       >

@@ -1,8 +1,9 @@
+import CreatePageDialog from "@/components/Dashboard/CreatePageDialog";
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
-import TemplateList from "@/components/TemplateList";
-import TableSkeleton from "@/components/TemplateList/loading";
-import { Button } from "@/components/ui";
-import Link from "next/link";
+import PageList from "@/components/PageList";
+
+import TableSkeleton from "@/components/PageList/loading";
+
 import { Suspense } from "react";
 
 export const DashboardPage = async () => {
@@ -15,15 +16,14 @@ export const DashboardPage = async () => {
 
         <main className="p-8 space-y-6">
           <header className="flex items-center justify-between">
-            <h1 className="text-2xl font-semibold">Templates</h1>
-            <Link href="/editor">
-              <Button>Create New Template</Button>
-            </Link>
+            <h1 className="text-2xl font-semibold">Pages</h1>
+            <CreatePageDialog />
           </header>
 
           <section>
-            {/* Use Suspense fallback as necessary  */}
-            <TemplateList />
+            <Suspense fallback={<TableSkeleton />}>
+              <PageList />
+            </Suspense>
           </section>
         </main>
       </div>

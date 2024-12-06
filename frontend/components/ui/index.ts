@@ -8,3 +8,5 @@ export * from "./skeleton";
 export * from "./table";
 export * from "./tabs";
 export * from "./toast";
+export * from "./label";
+export * from "./pagination";

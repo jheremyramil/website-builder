@@ -20,6 +20,7 @@ class TemplateFactory extends Factory
         return [
             'html' => '<div>' . fake()->word . '</div>',
             'css' => '.class { color: ' . fake()->safeColorName() . '; }',
+            'style' => 'body { font-size: ' . fake()->numberBetween(12, 18) . 'px; }',
             'components' => [
                 [
                     'type' => 'text',

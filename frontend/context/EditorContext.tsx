@@ -1,4 +1,4 @@
-import { initGrapesJSEditor } from "@/types";
+import initGrapesJSEditor from "@/types/EditorConfig";
 import { Editor } from "grapesjs";
 import React, {
   createContext,
@@ -11,6 +11,8 @@ import React, {
 interface EditorContextProps {
   editor: Editor | null;
   editorRef: React.RefObject<HTMLDivElement>;
+  templateId?: string | null;
+  assets?: (string | Record<string, any>)[];
 }
 
 const EditorContext = createContext<EditorContextProps | undefined>(undefined);
@@ -23,22 +25,31 @@ export const useEditor = () => {
   return context;
 };
 
-export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const EditorProvider: React.FC<{
+  children: React.ReactNode;
+  templateId?: string;
+  assets?: (string | Record<string, any>)[];
+}> = ({ children, templateId = "", assets = [] }) => {
   const editorRef = useRef<HTMLDivElement | null>(null);
   const [editor, setEditor] = useState<Editor | null>(null);
 
   useEffect(() => {
     if (editorRef.current) {
-      const instance = initGrapesJSEditor(editorRef.current);
-      setEditor(instance);
+      const instance = initGrapesJSEditor(
+        editorRef.current,
+        templateId,
+        assets
+      );
+
+      if (instance) {
+        setEditor(instance);
+      }
 
       return () => {
-        instance.destroy();
+        instance?.destroy();
       };
     }
-  }, []);
+  }, [templateId]);
 
   return (
     <EditorContext.Provider value={{ editor, editorRef }}>

@@ -9,7 +9,7 @@ class Template extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['html', 'css', 'components'];
+    protected $fillable = ['html', 'css', 'components', 'style'];
 
     protected $casts = [
         'components' => 'array',
