@@ -23,10 +23,8 @@ export const signinAction = async (state: FormState, formData: FormData) => {
     };
   }
 
-  const { email, password } = validatedFields.data;
-
   try {
-    const response = await login(email, password);
+    const response = await login(validatedFields.data);
     const { user, token } = response;
     await createSession(user.id, token);
     return { user };

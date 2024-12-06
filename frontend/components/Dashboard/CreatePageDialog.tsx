@@ -28,7 +28,6 @@ const CreatePageDialog = () => {
   );
 
   useEffect(() => {
-    console.log(state, "state");
     if (state?.page && !isPending) {
       toast({
         title: "Page Created!",
