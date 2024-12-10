@@ -21,11 +21,7 @@ const Login = () => {
         variant: "success",
       });
 
-      const timeoutId = setTimeout(() => {
-        router.push("/dashboard");
-      }, 1000);
-
-      return () => clearTimeout(timeoutId);
+      router.push("/dashboard");
     }
   }, [state?.user, isPending, router, toast]);
 

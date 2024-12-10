@@ -17,10 +17,11 @@ import {
 } from "../ui";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks";
+import { usePageStore } from "@/store";
 
 const CreatePageDialog = () => {
-  const router = useRouter();
   const { toast } = useToast();
+  const { addPage } = usePageStore();
   const [open, setOpen] = useState(false);
   const [state, action, isPending] = useActionState(
     createPageAction,
@@ -34,15 +35,10 @@ const CreatePageDialog = () => {
         variant: "success",
       });
 
+      addPage(state.page);
       setOpen(false);
-
-      const timeoutId = setTimeout(() => {
-        router.push("/dashboard");
-      }, 1000);
-
-      return () => clearTimeout(timeoutId);
     }
-  }, [state, isPending, toast, router]);
+  }, [state, isPending, addPage]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

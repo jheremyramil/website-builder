@@ -2,10 +2,6 @@ import CreatePageDialog from "@/components/Dashboard/CreatePageDialog";
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
 import PageList from "@/components/PageList";
 
-import TableSkeleton from "@/components/PageList/loading";
-
-import { Suspense } from "react";
-
 export const DashboardPage = async () => {
   return (
     <div className="h-screen flex flex-col bg-gray-100 font-sans text-gray-900">
@@ -21,9 +17,7 @@ export const DashboardPage = async () => {
           </header>
 
           <section>
-            <Suspense fallback={<TableSkeleton />}>
-              <PageList />
-            </Suspense>
+            <PageList />
           </section>
         </main>
       </div>
