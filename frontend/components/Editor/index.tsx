@@ -1,7 +1,7 @@
-import { useEditor } from "@/context/EditorContext";
+import { useEditorStore } from "@/store";
 
 const Editor = () => {
-  const { editorRef } = useEditor();
+  const { editorRef } = useEditorStore();
   return <div ref={editorRef} id="editor" />;
 };
 

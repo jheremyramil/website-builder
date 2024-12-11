@@ -6,10 +6,14 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // Helper to extract raw HTML content
-export const extractHTMLContent = (data: any): string => {
-  if (!data.pages || !data.pages[0]?.frames?.[0]?.component) return "";
-  const component = data.pages[0].frames[0].component;
-  return renderComponentAsHTML(component);
+export const extractComponents = (data: any) => {
+  // Extract components from the first page's first frame
+  const page = data?.pages?.[0];
+  if (page && page.frames && page.frames.length > 0) {
+    const components = page.frames[0].component?.components;
+    return components || [];
+  }
+  return [];
 };
 
 // Render component recursively into HTML

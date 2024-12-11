@@ -26,7 +26,6 @@ class PageController extends Controller
             return $this->success([
                 'name' => $page->name,
                 'slug' => $page->slug,
-                'content' => $page->content
             ], 'Success getting page', 200, false);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
@@ -39,7 +38,6 @@ class PageController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string',
                 'slug' => 'nullable|string',
-                'content' => 'nullable|json',
             ]);
 
             $validated['slug'] = $validated['name'] ?? Str::of($validated['name'])->slug()->lower();
@@ -54,9 +52,16 @@ class PageController extends Controller
         }
     }
 
-    public function saveContent($id)
+    public function saveContent(Request $request, $id)
     {
         try {
+            $validatedData = $request->validate([
+                'pages' => 'required|array',
+                'styles' => 'nullable|array',
+                'assets' => 'nullable|array',
+                'symbols' => 'nullable|array',
+            ]);
+
             // Find the page by ID
             $page = Page::findOrFail($id);
 
@@ -64,11 +69,15 @@ class PageController extends Controller
                 return $this->error(['message' => 'Page not found'], 404);
             }
 
+            $page->pages = $validatedData['pages'];
+            $page->styles = $validatedData['styles'] ?? [];
+            $page->assets = $validatedData['assets'] ?? [];
+            $page->symbols = $validatedData['symbols'] ?? [];
             $page->save();
 
             return $this->success([
-                'page' => $page
-            ], 'Page updated successfully', 200, false);
+                'content' => $page
+            ], 'Content updated successfully', 200, false);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
@@ -81,9 +90,10 @@ class PageController extends Controller
             $page = Page::findOrFail($id);
 
             return $this->success([
-                'name' => $page->name,
-                'slug' => $page->slug,
-                'content' => $page->content ?? ''
+                'pages' => $page->pages,
+                'styles' => $page->styles,
+                'assets' => $page->assets,
+                'symbols' => $page->symbols
             ], 'Success loading content', 200, false);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
@@ -96,7 +106,6 @@ class PageController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string',
                 'slug' => 'required|string',
-                'content' => 'required|json',
             ]);
 
             $page = Page::findOrFail($id);

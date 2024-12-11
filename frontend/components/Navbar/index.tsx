@@ -7,6 +7,7 @@ import {
   EyeIcon,
 } from "lucide-react";
 
+import { logoutAction } from "@/actions";
 import {
   Avatar,
   AvatarFallback,
@@ -19,12 +20,78 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui";
+import { useToast } from "@/hooks";
+import { useEditorStore } from "@/store";
+import Link from "next/link";
 import Devices from "./Devices";
 import Tools from "./Tools";
-import Link from "next/link";
-import { logoutAction } from "@/actions";
+
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api";
 
 const Navbar = () => {
+  const { toast } = useToast();
+  const { editor } = useEditorStore();
+
+  const handleSubmit = async () => {
+    try {
+      const data = editor?.getProjectData();
+      if (data) {
+        const response = await editor?.StorageManager.store(data);
+
+        if (!response) {
+          toast({
+            title: "Error!",
+            variant: "destructive",
+            description: "Failed to update content.",
+          });
+        }
+
+        toast({
+          title: "Success!",
+          variant: "success",
+          description: "Content updated successfully!",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Something went wrong!",
+        variant: "destructive",
+        description:
+          error?.message ||
+          "An unexpected error occurred. Please contact system administrator",
+      });
+    }
+  };
+
+  const handlePreviewPage = () => {
+    if (!editor) return;
+
+    const html = editor?.getHtml();
+    const styles = editor?.getCss();
+
+    const previewWindow = window.open("", "_blank");
+
+    if (previewWindow) {
+      previewWindow.document.open();
+      previewWindow.document.write(`
+        <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Preview</title>
+            <style>${styles}</style>
+          </head>
+          <body>${html}</body>
+          </html>
+        `);
+      previewWindow.document.close();
+    } else {
+      console.error("Failed to open new tab.");
+    }
+  };
+
   return (
     <div className="flex h-screen flex-1 flex-col">
       <header className="h-18 bg-white flex justify-between px-8 items-center border-b border-gray-200 gap-x-6">
@@ -48,7 +115,10 @@ const Navbar = () => {
           </button>
 
           {/* Preview Website  */}
-          <button className="flex items-center justify-center gap-x-2 rounded-xl bg-gray-100 px-4 py-2">
+          <button
+            onClick={handlePreviewPage}
+            className="flex items-center justify-center gap-x-2 rounded-xl bg-gray-100 px-4 py-2"
+          >
             <EyeIcon className="h-5 w-5 stroke-current text-gray-400" />
             <span className="text-sm font-semibold leading-6">Preview</span>
           </button>
@@ -67,12 +137,16 @@ const Navbar = () => {
         <div className="flex gap-x-3 items-center">
           <div className="flex h-18 items-center gap-x-4 border-b border-gray-200 px-6">
             <Button
+              onClick={handleSubmit}
               variant="outline"
               className="border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition duration-300"
             >
               Save
             </Button>
-            <Button className="bg-green-400 text-gray-200 hover:bg-green-600 hover:text-white transition duration-300">
+            <Button
+              onClick={handleSubmit}
+              className="bg-green-400 text-gray-200 hover:bg-green-600 hover:text-white transition duration-300"
+            >
               Save & Publish
             </Button>
           </div>

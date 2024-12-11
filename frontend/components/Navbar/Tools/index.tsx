@@ -1,4 +1,4 @@
-import { useEditor } from "@/context/EditorContext";
+import { useEditorStore } from "@/store";
 import {
   CodeIcon,
   MaximizeIcon,
@@ -12,24 +12,25 @@ import ImportCodeDialog from "../ImportCode";
 
 const Tools = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { editor } = useEditor();
+  const { editor } = useEditorStore();
 
   // Toggle grid lines
   const toggleGridLines = () => {
     const canvas = editor?.Canvas.getBody();
+    console.log(canvas, "canvas");
     canvas?.classList.toggle("grid-lines");
   };
 
   // Maximize editor
   const toggleMaximize = () => {
-    const editorContainer = document.getElementById("editor-container");
+    const editorContainer = document.getElementById("editor");
     editorContainer?.classList.toggle("fullscreen");
   };
 
   // Handle the `Esc` key press to minimize the fullscreen mode
   const handleEscapeKey = (event: KeyboardEvent) => {
     if (event.key === "Escape") {
-      const editorContainer = document.getElementById("editor-container");
+      const editorContainer = document.getElementById("editor");
       editorContainer?.classList.remove("fullscreen");
     }
   };

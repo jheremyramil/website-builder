@@ -8,7 +8,7 @@ import {
   styleManager,
 } from "@/lib";
 import axios from "axios";
-import grapesjs from "grapesjs";
+import grapesjs, { ProjectData } from "grapesjs";
 import gjsBlockBasic from "grapesjs-blocks-basic";
 import gjsPresetNavbar from "grapesjs-navbar";
 import gjsPluginExport from "grapesjs-plugin-export";
@@ -21,7 +21,7 @@ const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api";
 
 const initGrapesJSEditor = (
-  container: any,
+  container: HTMLElement,
   templateId: string,
   assets: (string | Record<string, any>)[]
 ) => {
@@ -33,10 +33,6 @@ const initGrapesJSEditor = (
     styleManager: styleManager,
     layerManager: layerManager,
     selectorManager: selectorManager,
-    assetManager: {
-      assets,
-      upload: false,
-    },
     panels: panels,
     storageManager: {
       type: "remote",
@@ -76,36 +72,45 @@ const initGrapesJSEditor = (
   });
 
   addEditorCommand(editor);
+
+  if (assets) {
+    editor.AssetManager.add(assets);
+  }
+
   editor.Storage.add("remote", {
-    async load() {
+    async load(): Promise<ProjectData> {
       try {
         const response = await axios.get(
           `${API_BASE_URL}/page/${templateId}/content`
         );
-        const { content } = response.data;
 
-        if (content) {
-          const parsedContent = JSON.parse(content)[0];
-          const { html, css } = parsedContent;
-          editor.setComponents(html);
-          editor.setStyle(css);
+        if (response.data) {
+          const { pages, styles, assets } = response.data;
+
+          const projectData = { pages, styles, assets };
+          editor.loadProjectData({ pages, styles, assets });
+          return projectData;
         } else {
-          initializeEditorWithDefaultData();
+          return initializeEditorWithDefaultData();
         }
-      } catch (error) {
-        console.error("Error loading content:", error);
+      } catch (error: any) {
+        console.error(error?.message || "An unexpected error occurred.");
+        return initializeEditorWithDefaultData();
       }
     },
 
     async store(data) {
-      return await axios.post(
+      const response = await axios.post(
         `${API_BASE_URL}/page/${templateId}/content`,
         data
       );
+
+      const { content } = response.data;
+      return content;
     },
   });
 
-  const initializeEditorWithDefaultData = () => {
+  function initializeEditorWithDefaultData() {
     const defaultData = {
       pages: [
         {
@@ -125,7 +130,8 @@ const initGrapesJSEditor = (
 
     const { component } = defaultData.pages[0];
     editor.setComponents(component);
-  };
+    return defaultData;
+  }
 
   return editor;
 };

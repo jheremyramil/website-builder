@@ -1,9 +1,9 @@
-import { useEditor } from "@/context/EditorContext";
+import { useEditorStore } from "@/store";
 import { MonitorIcon, TabletIcon, SmartphoneIcon } from "lucide-react";
 import React from "react";
 
 const Devices = () => {
-  const { editor } = useEditor();
+  const { editor } = useEditorStore();
 
   const setDevice = (device: string) => {
     editor?.Devices.select(device);

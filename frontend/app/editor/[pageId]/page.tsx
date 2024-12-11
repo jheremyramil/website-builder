@@ -1,55 +1,55 @@
 "use client";
 
-import Blocks from "@/components/Blocks";
-import Navbar from "@/components/Navbar";
-import RightSidebar from "@/components/RightSidebar";
-
-import Editor from "@/components/Editor";
-import { EditorProvider } from "@/context/EditorContext";
-import { fetchAllAssets } from "@/services";
+import { useEditorStore } from "@/store";
+import initGrapesJSEditor from "@/types/EditorConfig";
+import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+
+const Blocks = dynamic(() => import("@/components/Blocks"), { ssr: false });
+const Editor = dynamic(() => import("@/components/Editor"), { ssr: false });
+const Navbar = dynamic(() => import("@/components/Navbar"), { ssr: false });
+const RightSidebar = dynamic(() => import("@/components/RightSidebar"), {
+  ssr: false,
+});
 
 const PageDetail = () => {
   const { pageId } = useParams();
-  const [assets, setAssets] = useState([]);
-  const templateId = Array.isArray(pageId) ? pageId[0] : pageId;
+  const { setEditor, setTemplateId, assets, templateId, editorRef } =
+    useEditorStore();
 
   useEffect(() => {
-    async function getAllAssets() {
-      try {
-        const response = await fetchAllAssets();
-        const { assets } = response;
+    const id = Array.isArray(pageId) ? pageId[0] : pageId;
+    if (!id) return;
+    setTemplateId(id);
+  }, [pageId, setTemplateId]);
 
-        setAssets(assets);
-      } catch (error) {
-        console.error("Error fetching assets", error);
-      }
+  useEffect(() => {
+    if (editorRef.current && templateId) {
+      const editor = initGrapesJSEditor(editorRef.current, templateId, assets);
+
+      setEditor(editor);
+
+      return () => editor.destroy();
     }
-
-    return () => {
-      getAllAssets();
-    };
-  }, []);
+  }, [templateId, assets, setEditor]);
 
   return (
-    <EditorProvider templateId={templateId} assets={assets}>
-      <div className="h-screen flex flex-col bg-gray-100 font-sans text-gray-900">
-        <Navbar />
+    <div className="h-screen flex flex-col bg-gray-100 font-sans text-gray-900 overflow-x-hidden">
+      <Navbar />
 
-        <div className="flex overflow-hidden">
-          {/* Blocks (Sidebar) on the left */}
-          <Blocks />
+      <div className="flex overflow-hidden">
+        {/* Blocks (Sidebar) on the left */}
+        <Blocks />
 
-          <main className="flex-1 p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
-            <Editor />
-          </main>
+        <main className="flex-1 p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+          <Editor />
+        </main>
 
-          {/* Styles and Layer Manager */}
-          <RightSidebar />
-        </div>
+        {/* Styles and Layer Manager */}
+        <RightSidebar />
       </div>
-    </EditorProvider>
+    </div>
   );
 };
 

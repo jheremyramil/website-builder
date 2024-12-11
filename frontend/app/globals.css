@@ -121,14 +121,12 @@
   top: 0 !important;
 }
 
-@layer utilities {
-  .grid-lines {
-    @apply bg-[length:10px_10px] bg-[linear-gradient(to_right,lightgray_1px,transparent_1px),linear-gradient(to_bottom,lightgray_1px,transparent_1px)];
-  }
+.grid-lines {
+  @apply bg-[length:10px_10px] bg-[linear-gradient(to_right,lightgray_1px,transparent_1px),linear-gradient(to_bottom,lightgray_1px,transparent_1px)];
 }
 
 /* Fullscreen mode */
-#editor-container.fullscreen {
+#editor.fullscreen {
   position: fixed;
   top: 0;
   left: 0;
