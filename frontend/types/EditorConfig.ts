@@ -23,6 +23,7 @@ const API_BASE_URL =
 const initGrapesJSEditor = (
   container: HTMLElement,
   templateId: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   assets: (string | Record<string, any>)[]
 ) => {
   const editor = grapesjs.init({
@@ -84,15 +85,17 @@ const initGrapesJSEditor = (
           `${API_BASE_URL}/page/${templateId}/content`
         );
 
-        if (response.data) {
-          const { pages, styles, assets } = response.data;
+        const { pages, styles, assets } = response.data;
 
-          const projectData = { pages, styles, assets };
-          editor.loadProjectData({ pages, styles, assets });
-          return projectData;
-        } else {
+        if (!pages) {
           return initializeEditorWithDefaultData();
         }
+
+        const projectData = { pages, styles, assets };
+        editor.loadProjectData({ pages, styles, assets });
+
+        return projectData;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         console.error(error?.message || "An unexpected error occurred.");
         return initializeEditorWithDefaultData();

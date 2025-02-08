@@ -5,10 +5,10 @@ interface EditorState {
   editor: Editor | null;
   editorRef: React.RefObject<HTMLDivElement>;
   templateId: string | null;
-  assets: (string | Record<string, any>)[];
+  assets: (string | Record<string, unknown>)[];
   setEditor: (editor: Editor) => void;
   setTemplateId: (id: string) => void;
-  setAssets: (assets: (string | Record<string, any>)[]) => void;
+  setAssets: (assets: (string | Record<string, unknown>)[]) => void;
 }
 
 export const useEditorStore = create<EditorState>((set) => ({

@@ -1,8 +1,5 @@
 "use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui";
-import { BrushIcon, LayersIcon } from "lucide-react";
-
 const RightSidebar = () => {
   return (
     <aside className="flex flex-col h-screen w-[300px] bg-[#444] border-l border-[#444]">

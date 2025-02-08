@@ -1,6 +1,7 @@
 "use client";
 
 import { getAllPageAction } from "@/actions";
+import { usePageStore } from "@/store";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
@@ -18,14 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "../ui";
-import { usePageStore } from "@/store";
 import Spinner from "../ui/spinner";
-
-type Page = {
-  id: number;
-  name: string;
-  slug: string;
-};
 
 const PageList = () => {
   const { pages, currentPage, totalPages, setPages } = usePageStore();
