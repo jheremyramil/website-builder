@@ -54,7 +54,7 @@ Ensure you have the following installed on your system:
 
 4. Configure environment variables:
 
-   - Copy **.env.example** to **.env**
+   - Copy **env.example** to **.env**
 
    ```bash
    NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api
@@ -81,7 +81,7 @@ Ensure you have the following installed on your system:
    ```
 3. Set up the environment file:
 
-   - Copy **.env.example** to **.env**
+   - Copy **env.example** to **.env**
 
    ```bash
    cp .env.example .env
