@@ -7,8 +7,28 @@ const Devices = () => {
   const [activeDevice, setActiveDevice] = useState<string>("desktop");
 
   const setDevice = (device: string) => {
+    if (!editor) return;
+
     editor?.Devices.select(device);
     setActiveDevice(device);
+
+    // Dynamically set the canvas width
+    const canvas = editor?.Canvas.getFrameEl();
+    if (canvas) {
+      switch (device) {
+        case "desktop":
+          canvas.style.width = "1024px";
+          break;
+        case "tablet":
+          canvas.style.width = "690px";
+          break;
+        case "mobile":
+          canvas.style.width = "320px";
+          break;
+        default:
+          canvas.style.width = "100%";
+      }
+    }
   };
 
   return (

@@ -57,3 +57,20 @@ export const extractCSS = (styles: any[]): string => {
     })
     .join("\n");
 };
+
+/**
+ * Converts a YouTube video URL into an embeddable URL format.
+ * @param {string} url - The YouTube video URL.
+ * @returns {string | null} - The embeddable YouTube URL or null if invalid.
+ */
+export const getYouTubeEmbedUrl = (url: string): string | null => {
+  const match = url.match(
+    /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|.*[?&]v=))([^"&?\/\s]{11})/
+  );
+
+  if (match && match[1]) {
+    return `https://www.youtube.com/embed/${match[1]}`;
+  }
+
+  return null;
+};

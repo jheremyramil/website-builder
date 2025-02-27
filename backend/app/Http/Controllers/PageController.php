@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Page;
 use App\Traits\ApiResponses;
+use App\Traits\ExtractYoutubeId;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class PageController extends Controller
 {
     use ApiResponses;
+    use ExtractYoutubeId;
 
     public function getAll(Request $request)
     {
@@ -67,9 +69,19 @@ class PageController extends Controller
                 if (isset($component['type']) && $component['type'] === 'image') {
                     // Make sure 'src' is not base64
                     if (strpos($component['attributes']['src'], 'data:image') === 0) {
-                        return response()->json([
+                        return $this->error([
                             'message' => 'Base64 images are not allowed. Please upload an image.',
                         ], 400);
+                    }
+                }
+
+                if (isset($component['type']) && $component['type'] === 'video') {
+                    $videoUrl = $component['attributes']['src'] ?? null;
+                    if ($videoUrl) {
+                        $videoId = $this->extractYouTubeId($videoUrl);
+                        if ($videoId) {
+                            $component['attributes']['src'] = $videoId; // Store only the ID
+                        }
                     }
                 }
             }

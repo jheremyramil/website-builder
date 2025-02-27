@@ -2,10 +2,10 @@
 
 import {
   addEditorCommand,
+  getYouTubeEmbedUrl,
   layerManager,
   panels,
   selectorManager,
-  styleManager,
   traitManager,
 } from "@/lib";
 import axios from "axios";
@@ -32,11 +32,13 @@ const initGrapesJSEditor = (
     blockManager: {
       appendTo: "#blocks",
     },
-    styleManager: styleManager,
-    layerManager: layerManager,
-    selectorManager: selectorManager,
-    traitManager: traitManager,
-    panels: panels,
+    styleManager: {
+      appendTo: "#styles-container",
+    },
+    layerManager,
+    selectorManager,
+    traitManager,
+    panels,
     assetManager: {
       uploadName: "file", // File key
       assets: [], // Store external images
@@ -54,8 +56,21 @@ const initGrapesJSEditor = (
         if (files && files[0]) {
           formData.append("file", files[0]); // Append the first file
         } else {
-          console.error("No files selected for upload.");
-          return;
+          const url = (e.target as HTMLInputElement)?.value?.trim();
+
+          // 🛠️ Check if it's a YouTube URL
+          const embedUrl = getYouTubeEmbedUrl(url);
+
+          if (embedUrl) {
+            const am = editor.AssetManager;
+
+            // ✅ Add YouTube Embed URL to GrapesJS
+            am.add({ type: "video", src: embedUrl });
+            am.render();
+            return;
+          }
+
+          console.error("Invalid file or URL for upload.");
         }
 
         try {
@@ -80,8 +95,6 @@ const initGrapesJSEditor = (
           if (selectedComponent && selectedComponent.is("image")) {
             selectedComponent.set("src", url);
           }
-
-          return url;
         } catch (error) {
           console.error("Upload error:", error);
         }

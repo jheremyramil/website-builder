@@ -123,9 +123,6 @@ const Navbar = () => {
 
         <div className="flex gap-x-3">
           {/* Panel Devices  */}
-          {/* <div className="panel__devices"></div>
-          <div className="panel__editor"></div>
-          <div className="panel__basic-actions"></div> */}
 
           <Devices />
           <Tools />

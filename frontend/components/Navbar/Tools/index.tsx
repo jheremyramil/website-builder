@@ -54,6 +54,7 @@ const Tools = () => {
   const clearCanvas = () => {
     if (confirm("Are you sure you want to clear the canvas?")) {
       editor?.DomComponents.clear();
+      editor?.CssComposer.clear();
     }
   };
 
