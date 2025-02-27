@@ -6,6 +6,7 @@ import {
   panels,
   selectorManager,
   styleManager,
+  traitManager,
 } from "@/lib";
 import axios from "axios";
 import grapesjs, { ProjectData } from "grapesjs";
@@ -34,7 +35,58 @@ const initGrapesJSEditor = (
     styleManager: styleManager,
     layerManager: layerManager,
     selectorManager: selectorManager,
+    traitManager: traitManager,
     panels: panels,
+    assetManager: {
+      uploadName: "file", // File key
+      assets: [], // Store external images
+      headers: {
+        "X-CSRF-TOKEN": document
+          .querySelector('meta[name="csrf-token"]')
+          ?.getAttribute("content"),
+      },
+      uploadFile: async function (e) {
+        const files = e.dataTransfer
+          ? e.dataTransfer.files
+          : (e.target as HTMLInputElement)?.files;
+        const formData = new FormData();
+
+        if (files && files[0]) {
+          formData.append("file", files[0]); // Append the first file
+        } else {
+          console.error("No files selected for upload.");
+          return;
+        }
+
+        try {
+          const response = await axios.post(`${API_BASE_URL}/assets`, formData);
+
+          if (!response || !response.data.url) {
+            console.error("Upload failed:", response);
+            return;
+          }
+
+          const { url } = response.data;
+
+          const am = editor.AssetManager;
+
+          console.log(url, "url");
+
+          // ✅ Add the image to GrapesJS assets
+          am.add({ src: url });
+          am.render();
+          // ✅ Insert the image into the canvas
+          const selectedComponent = editor.getSelected();
+          if (selectedComponent && selectedComponent.is("image")) {
+            selectedComponent.set("src", url);
+          }
+
+          return url;
+        } catch (error) {
+          console.error("Upload error:", error);
+        }
+      },
+    },
     storageManager: {
       type: "remote",
       stepsBeforeSave: 3,

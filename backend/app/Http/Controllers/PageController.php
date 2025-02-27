@@ -62,6 +62,18 @@ class PageController extends Controller
                 'symbols' => 'nullable|array',
             ]);
 
+             // Ensure images in `pages` only store URLs, not base64
+            foreach ($validatedData['pages'] as &$component) {
+                if (isset($component['type']) && $component['type'] === 'image') {
+                    // Make sure 'src' is not base64
+                    if (strpos($component['attributes']['src'], 'data:image') === 0) {
+                        return response()->json([
+                            'message' => 'Base64 images are not allowed. Please upload an image.',
+                        ], 400);
+                    }
+                }
+            }
+
             // Find the page by ID
             $page = Page::findOrFail($id);
 

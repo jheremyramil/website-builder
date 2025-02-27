@@ -32,6 +32,7 @@ Route::post('/page/{id}/content', [PageController::class, 'saveContent']);
 
 // Assets
 Route::get('/assets', [AssetController::class, 'getAll']);
+Route::post('/assets', [AssetController::class, 'upload']);
 
 
 

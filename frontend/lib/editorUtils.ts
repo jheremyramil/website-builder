@@ -407,9 +407,11 @@ export const styleManager: StyleManagerConfig = {
 export const layerManager: LayerManagerConfig = {
   appendTo: "#layers-container",
 };
+
 export const traitManager: TraitManagerConfig = {
   appendTo: "#traits-container",
 };
+
 export const selectorManager: SelectorManagerConfig = {
   appendTo: "#styles-container",
 };
@@ -504,6 +506,7 @@ export const addEditorCommand = (editor: Editor) => {
   // Save Button
   editor.Commands.add("saveDb", {
     run: (editor, sender) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       sender && sender.set("active");
       editor.store();
     },
@@ -525,5 +528,48 @@ export const addEditorCommand = (editor: Editor) => {
   // Redo
   editor.Commands.add("redo", {
     run: (editor) => editor.UndoManager.redo(),
+  });
+
+  editor.Components.addType("video", {
+    extend: "video",
+    model: {
+      defaults: {
+        traits: [
+          {
+            type: "file",
+            label: "Upload Video",
+            name: "video-file",
+            changeProp: true,
+          },
+        ],
+        script: function () {
+          const videoTag = this.querySelector("video");
+          const file = "{[ video-file ]}";
+
+          // Remove existing video content
+          this.innerHTML = "";
+
+          if (file) {
+            // ✅ Handle Local Video Upload
+            const videoElement = document.createElement("video");
+            videoElement.src = file;
+            videoElement.width = 100;
+            videoElement.controls = true;
+            this.appendChild(videoElement);
+          } else {
+            // ✅ Default video display
+            this.appendChild(videoTag);
+          }
+        },
+      },
+
+      init() {
+        this.on("change:youtube-url change:video-file", this.updateScript);
+      },
+
+      updateScript() {
+        this.trigger("change:script");
+      },
+    },
   });
 };
