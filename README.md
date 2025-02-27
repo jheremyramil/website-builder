@@ -35,22 +35,34 @@ Ensure you have the following installed on your system:
 
 1. **Clone the repository** and navigate to the project directory:
    Download the file, and navigate to your downloaded project
+
    ```bash
    cd nextjs-grapesjs-laravel
    ```
+
 2. Navigate to the **frontend** directory:
+
    ```bash
    cd frontend
    ```
+
 3. Install dependencies:
+
    ```bash
    npm install
    ```
+
 4. Configure environment variables:
-   - Create a **.env.local** file in the **frontend** directory:
+
+   - Copy **.env.example** to **.env**
+
    ```bash
    NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api
+
+   # Generate secret random secret key
+   SANCTUM_SECRET=
    ```
+
 5. Start the development server:
    ```bash
    npm run dev
