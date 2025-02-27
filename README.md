@@ -87,22 +87,34 @@ Ensure you have the following installed on your system:
    ```
 
 4. Generate the application key:
+
    ```bash
    php artisan key:generate
    ```
+
 5. Run database migrations:
+
    ```bash
    php artisan migrate
    ```
+
 6. Run database seeders:
+
    ```bash
    php artisan db:seed
    ```
-7. Start the Laravel development server:
+
+7. Create a symlink This makes storage/app/public accessible via public/storage.
+
+   ```bash
+   php artisan storage:link
+   ```
+
+8. Start the Laravel development server:
    ```bash
    php artisan serve
    ```
-8. Verify the API: The Laravel API will be available at **http://localhost:8000/api**
+9. Verify the API: The Laravel API will be available at **http://localhost:8000/api**
 
 ---
 
