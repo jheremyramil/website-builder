@@ -25,20 +25,33 @@ class AssetController extends Controller
   public function upload(Request $request)
   {
     $validated = $request->validate([
-      'file' => 'required|file|max:5120|mimes:jpeg,png,jpg,gif,svg,pdf,docx,xlsx,txt', // Combined validation rules
+      'file' => 'nullable|file|max:5120|mimes:jpeg,png,jpg,gif,svg,pdf,docx,xlsx,txt', // Validation for single file
+      'files.*' => 'nullable|file|max:5120|mimes:jpeg,png,jpg,gif,svg,pdf,docx,xlsx,txt', // Validation for multiple files
     ]);
 
     try {
-      $path = $validated['file']->store('uploads', 'public');
+      if (isset($validated['file'])) {
+        $path = $validated['file']->store('uploads', 'public');
+        Storage::setVisibility($path, 'public');
+        $url = url("storage/{$path}");
 
-      Storage::setVisibility($path, 'public'); // Ensure it's publicly accessible
+        return $this->success([
+          'url' => $url,
+        ], "File uploaded successfully", 200);
+      }
 
-      // Generate public URL
-      $url = url("storage/{$path}");
+      if (isset($validated['files'])) {
+        $uploadedFiles = [];
+        foreach ($request->file('files') as $file) {
+          $path = $file->store('uploads', 'public');
+          Storage::setVisibility($path, 'public');
+          $uploadedFiles[] = url("storage/{$path}");
+        }
 
-      return $this->success([
-        'url' => $url,
-      ], "File uploaded successfully", 200);
+        return $this->success([
+          'urls' => $uploadedFiles,
+        ], "Files uploaded successfully", 200);
+      }
     } catch (\Exception $e) {
       return $this->error([
         'message' => 'File upload failed',

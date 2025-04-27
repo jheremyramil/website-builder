@@ -53,13 +53,19 @@ const initGrapesJSEditor = (
           : (e.target as HTMLInputElement)?.files;
         const formData = new FormData();
 
-        if (files && files[0]) {
-          formData.append("file", files[0]); // Append the first file
+        if (files && files.length > 0) {
+          if (files.length === 1) {
+            formData.append("file", files[0]); // Handle single file upload
+          } else {
+            Array.from(files).forEach((file) => {
+              formData.append("files[]", file); // Handle multiple file uploads
+            });
+          }
         } else {
-          const url = (e.target as HTMLInputElement)?.value?.trim();
+          const youtubeUrl = (e.target as HTMLInputElement)?.value?.trim();
 
           // 🛠️ Check if it's a YouTube URL
-          const embedUrl = getYouTubeEmbedUrl(url);
+          const embedUrl = getYouTubeEmbedUrl(youtubeUrl);
 
           if (embedUrl) {
             const am = editor.AssetManager;
@@ -84,22 +90,31 @@ const initGrapesJSEditor = (
             }
           );
 
-          if (!response || !response.data.data.url) {
+          if (!response || !response.data.data) {
             console.error("Upload failed:", response);
             return;
           }
 
-          const { url } = response.data.data;
+          const { url, urls } = response.data.data;
 
-          const am = editor.AssetManager;
-
-          // ✅ Add the image to GrapesJS assets
-          am.add({ src: url });
-          am.render();
-          // ✅ Insert the image into the canvas
-          const selectedComponent = editor.getSelected();
-          if (selectedComponent && selectedComponent.is("image")) {
-            selectedComponent.set("src", url);
+          if (url) {
+            // Single file upload
+            const am = editor.AssetManager;
+            am.add({ src: url });
+            am.render();
+            const selectedComponent = editor.getSelected();
+            if (selectedComponent && selectedComponent.is("image")) {
+              selectedComponent.set("src", url);
+            }
+          } else if (urls && Array.isArray(urls)) {
+            // Multiple file uploads
+            const am = editor.AssetManager;
+            urls.forEach((fileUrl) => {
+              am.add({ src: fileUrl });
+            });
+            am.render();
+          } else {
+            console.error("Unexpected response format:", response);
           }
         } catch (error) {
           console.error("Upload error:", error);
