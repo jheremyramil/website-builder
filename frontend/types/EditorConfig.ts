@@ -74,8 +74,6 @@ const initGrapesJSEditor = (
         }
 
         try {
-          console.log({ file: formData.get("file") });
-
           const response = await axios.post(
             `${API_BASE_URL}/assets`,
             formData,
@@ -86,8 +84,6 @@ const initGrapesJSEditor = (
             }
           );
 
-          console.log({ response });
-
           if (!response || !response.data.data.url) {
             console.error("Upload failed:", response);
             return;
@@ -96,8 +92,6 @@ const initGrapesJSEditor = (
           const { url } = response.data.data;
 
           const am = editor.AssetManager;
-
-          console.log(url, "url");
 
           // ✅ Add the image to GrapesJS assets
           am.add({ src: url });
