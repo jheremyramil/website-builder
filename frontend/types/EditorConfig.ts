@@ -74,14 +74,26 @@ const initGrapesJSEditor = (
         }
 
         try {
-          const response = await axios.post(`${API_BASE_URL}/assets`, formData);
+          console.log({ file: formData.get("file") });
 
-          if (!response || !response.data.url) {
+          const response = await axios.post(
+            `${API_BASE_URL}/assets`,
+            formData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
+
+          console.log({ response });
+
+          if (!response || !response.data.data.url) {
             console.error("Upload failed:", response);
             return;
           }
 
-          const { url } = response.data;
+          const { url } = response.data.data;
 
           const am = editor.AssetManager;
 
