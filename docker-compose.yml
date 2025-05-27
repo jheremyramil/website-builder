@@ -1,0 +1,82 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: laravel-app
+    volumes:
+      - ./backend:/var/www
+    ports:
+      - "8000:8000"
+    working_dir: /var/www
+    depends_on:
+      - mysql
+      - redis
+    env_file:
+      - ./backend/.env
+    command: >
+      sh -c "
+        until nslookup mysql; do
+          echo 'Waiting for MySQL DNS...';
+          sleep 2;
+        done;
+        until nc -z mysql 3306; do
+          echo 'Waiting for MySQL TCP port...';
+          sleep 2;
+        done;
+        php artisan migrate &&
+        php artisan db:seed &&
+        php artisan storage:link &&
+        php artisan serve --host=0.0.0.0 --port=8000
+      "
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: nextjs-app
+    volumes:
+      - ./frontend:/app
+    env_file:
+      - ./frontend/.env
+    ports:
+      - "3001:3001"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  mysql:
+    image: mysql:8
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: backend
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app-network
+
+  redis:
+    image: redis:alpine
+    container_name: redis-server
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+volumes:
+  mysql_data:
+
+networks:
+  app-network:
+    driver: bridge
