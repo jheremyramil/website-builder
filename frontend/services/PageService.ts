@@ -2,8 +2,11 @@ import axios from "axios";
 import { axiosInstance, verifySession } from "@/lib";
 import { cache } from "react";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api";
+const isBrowser = typeof window !== "undefined";
+
+const API_BASE_URL = isBrowser
+  ? process.env.NEXT_PUBLIC_API_BASE_URL
+  : process.env.INTERNAL_API_BASE_URL;
 
 export const getAllPages = cache(async (page = 1) => {
   const session = await verifySession();

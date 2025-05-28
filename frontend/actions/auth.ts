@@ -10,29 +10,26 @@ import {
 import { login, register } from "@/services";
 import { redirect } from "next/navigation";
 
-export const signinAction = async (state: FormState, formData: FormData) => {
-  const validatedFields = SigninFormSchema.safeParse({
-    email: formData.get("email"),
-    password: formData.get("password"),
-  });
+export const signinAction = async (_: any, formData: FormData) => {
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
 
-  // If any form fields are invalid, return early
-  if (!validatedFields.success) {
+  if (!email || !password) {
     return {
-      errors: validatedFields.error.flatten().fieldErrors,
+      errors: {
+        email: !email ? ["Email is required"] : undefined,
+        password: !password ? ["Password is required"] : undefined,
+      },
     };
   }
 
   try {
-    const response = await login(validatedFields.data);
-    const { user, token } = response;
+    const { user, token } = await login({ email, password });
     await createSession(user.id, token);
     return { user };
-  } catch (error) {
-    console.error("Sign-in error:", error);
-    return {
-      message: "Invalid email or password. Please try again.",
-    };
+    console.log("User logged in successfully:", user);
+  } catch {
+    return { errors: { form: ["Invalid email or password"] } };
   }
 };
 

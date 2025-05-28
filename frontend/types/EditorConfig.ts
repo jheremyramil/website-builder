@@ -20,8 +20,11 @@ import "grapesjs/dist/css/grapes.min.css";
 import { fontOptions } from "@/utils/fonts";
 import registerCustomCarousel from "@/components/features/carouselBlock";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api";
+const isBrowser = typeof window !== "undefined";
+
+const API_BASE_URL = isBrowser
+  ? process.env.NEXT_PUBLIC_API_BASE_URL
+  : process.env.INTERNAL_API_BASE_URL;
 
 const initGrapesJSEditor = (
   container: HTMLElement,
@@ -163,7 +166,7 @@ const initGrapesJSEditor = (
     plugins: [
       gjsBlockBasic,
       gjsPluginExport,
-      gjsStyleBG,
+      //gjsStyleBG,
       gjsPresetNavbar,
       gjsPresetForms,
       gjsPresetTooltip,
@@ -171,7 +174,7 @@ const initGrapesJSEditor = (
     pluginsOpts: {
       gjsBlockBasic: {},
       gjsPluginExport: {},
-      gjsStyleBG: {},
+      //gjsStyleBG: {},
       gjsPresetNavbar: {},
       gjsPresetForms: {},
       gjsPresetTooltip: {},
