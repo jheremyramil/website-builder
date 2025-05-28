@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   backend:
     build:
@@ -42,7 +44,7 @@ services:
     env_file:
       - ./frontend/.env
     ports:
-      - "3001:3000"
+      - "3000:3000"
     networks:
       - app-network
 
@@ -80,9 +82,27 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./nginx/certs:/etc/nginx/certs
       - ./nginx/logs:/var/log/nginx
+      - ./nginx/html:/var/www/html
     depends_on:
       - backend
       - frontend
+    networks:
+      - app-network
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./nginx/certs:/etc/letsencrypt
+      - ./nginx/html:/var/www/html
+    entrypoint: >
+      sh -c "trap exit TERM;
+             while :; do
+               certbot renew --webroot -w /var/www/html --quiet;
+               sleep 12h & wait $${!};
+             done"
+    depends_on:
+      - nginx
     networks:
       - app-network
 
