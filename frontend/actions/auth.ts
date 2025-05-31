@@ -27,50 +27,40 @@ export const signinAction = async (_: any, formData: FormData) => {
     const { user, token } = await login({ email, password });
     await createSession(user.id, token);
     return { user };
-    console.log("User logged in successfully:", user);
-  } catch {
-    return { errors: { form: ["Invalid email or password"] } };
+  } catch (error: any) {
+    return {
+      errors: {
+        form: [error.message || "An error occurred. Please try again."],
+      },
+    };
   }
 };
 
-export const signupAction = async (state: FormState, formData: FormData) => {
-  const validatedFields = SignupFormSchema.safeParse({
+export async function signupAction(prevState: any, formData: FormData) {
+  const data = {
     name: formData.get("name"),
     email: formData.get("email"),
     password: formData.get("password"),
-  });
-
-  // If any form fields are invalid, return early
-  if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-    };
-  }
+  };
 
   try {
-    // register
-    const response = await register(validatedFields.data);
+    const response = await register(data);
 
-    const { user, token } = response;
-
-    if (!user || !token) {
-      return {
-        success: false,
-        message: "Failed to create an account. Please try again.",
-      };
-    }
-
-    await createSession(user.id, token);
-
-    return { user };
-  } catch (error: any) {
-    console.error("Sign-up error:", error);
     return {
-      success: false,
-      message: error.message || "An error occurred while creating an account.",
+      user: response.data.user,
+      token: response.data.token,
+      errors: null,
+    };
+  } catch (error: any) {
+    return {
+      user: null,
+      token: null,
+      errors: error.validationErrors || {
+        general: ["Something went wrong. Try again."],
+      },
     };
   }
-};
+}
 
 export const logoutAction = async () => {
   await deleteSession();
