@@ -5,6 +5,7 @@ import initGrapesJSEditor from "@/types/EditorConfig";
 import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 
 const Blocks = dynamic(() => import("@/components/Blocks"), { ssr: false });
 const Editor = dynamic(() => import("@/components/Editor"), { ssr: false });
@@ -24,7 +25,7 @@ const PageDetail = () => {
     setTemplateId(id);
   }, [pageId, setTemplateId]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!editorRef.current || !templateId) return;
 
     const editor = initGrapesJSEditor(editorRef.current, templateId, assets);

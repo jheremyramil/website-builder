@@ -70,6 +70,7 @@ const Login = () => {
                   placeholder="your@email.com"
                   required
                   className="pl-10 w-full py-3 rounded-lg border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  style={{ boxShadow: "none", outline: "none" }}
                 />
               </div>
               {state?.errors?.email && (
@@ -85,12 +86,12 @@ const Login = () => {
                 <label className="block text-sm font-medium text-gray-700">
                   Password
                 </label>
-                <Link
+                {/* <Link
                   href="/forgot-password"
                   className="text-sm text-indigo-600 hover:text-indigo-500"
                 >
                   Forgot password?
-                </Link>
+                </Link> */}
               </div>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -102,6 +103,7 @@ const Login = () => {
                   placeholder="••••••••"
                   required
                   className="pl-10 w-full py-3 rounded-lg border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  style={{ boxShadow: "none", outline: "none" }}
                 />
               </div>
               {state?.errors?.password && (
@@ -118,7 +120,8 @@ const Login = () => {
 
             <Button
               type="submit"
-              className="w-full mt-6 py-3 px-4 bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 rounded-lg shadow-sm"
+              className="w-full mt-6 py-3 px-4  hover:bg-black focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 rounded-lg shadow-sm"
+              variant="default"
               size="lg"
               disabled={isPending}
             >
@@ -134,7 +137,7 @@ const Login = () => {
               Don't have an account?{" "}
               <Link
                 href="/register"
-                className="font-medium text-indigo-600 hover:text-indigo-500"
+                className="font-medium  hover:text-black-500 text-[#0c1116]"
               >
                 Sign up
               </Link>

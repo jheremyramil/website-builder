@@ -228,7 +228,6 @@ const initGrapesJSEditor = (
         editor.loadProjectData({ pages, styles, assets });
 
         return projectData;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         console.error(error?.message || "An unexpected error occurred.");
         return initializeEditorWithDefaultData();

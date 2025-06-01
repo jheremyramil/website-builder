@@ -81,6 +81,7 @@ const Register = () => {
                   placeholder="Your Name"
                   required
                   className="pl-10 w-full py-3 rounded-lg border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  style={{ boxShadow: "none", outline: "none" }}
                 />
               </div>
 
@@ -104,6 +105,7 @@ const Register = () => {
                   placeholder="your@email.com"
                   required
                   className="pl-10 w-full py-3 rounded-lg border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  style={{ boxShadow: "none", outline: "none" }}
                 />
               </div>
               {state?.errors?.email && (
@@ -128,6 +130,7 @@ const Register = () => {
                   placeholder="••••••••"
                   required
                   className="pl-10 w-full py-3 rounded-lg border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  style={{ boxShadow: "none", outline: "none" }}
                 />
               </div>
               {state?.errors?.password && (
@@ -144,7 +147,8 @@ const Register = () => {
 
             <Button
               type="submit"
-              className="w-full mt-6 py-3 px-4 bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 rounded-lg shadow-sm"
+              className="w-full mt-6 py-3 px-4  hover:bg-black focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 rounded-lg shadow-sm"
+              variant="default"
               size="lg"
               disabled={isPending}
             >
@@ -160,7 +164,7 @@ const Register = () => {
               Already have an account?{" "}
               <Link
                 href="/login"
-                className="font-medium text-indigo-600 hover:text-indigo-500"
+                className="font-medium  hover:text-black-500 text-[#0c1116]"
               >
                 Login
               </Link>

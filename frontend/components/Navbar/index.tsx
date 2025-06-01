@@ -25,10 +25,41 @@ import { useEditorStore } from "@/store";
 import Link from "next/link";
 import Devices from "./Devices";
 import Tools from "./Tools";
+import { useState, useEffect } from "react";
+import { getPagesByUserId } from "@/services/PageService";
+import { verifySession } from "@/lib";
 
 const Navbar = () => {
   const { toast } = useToast();
   const { editor } = useEditorStore();
+  const [pages, setPages] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [userId, setUserId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      const session = await verifySession();
+      if (session?.userId) {
+        setUserId(session.userId);
+      }
+    };
+
+    fetchSession();
+  }, []);
+
+  useEffect(() => {
+    if (!userId) return;
+    const fetchPages = async () => {
+      console.log("Fetching pages for userId:", userId, "page:", currentPage);
+      const data = await getPagesByUserId(userId, currentPage);
+      console.log("Fetched data:", data);
+      if (data?.pages?.data) {
+        setPages(data.pages.data);
+      }
+    };
+
+    fetchPages();
+  }, [userId, currentPage]);
 
   const handleSubmit = async () => {
     try {
@@ -133,15 +164,22 @@ const Navbar = () => {
           </Link>
 
           {/* Show page details  */}
-          <button className="flex flex-col rounded-xl border border-gray-200 bg-gray-100 px-6 py-2">
-            <div className="flex items-center gap-x-2">
-              <span className="text-sm">Page: Homepage - Dipa</span>
-              <ChevronDownIcon className="h-5 w-5 stroke-current text-gray-400" />
-            </div>
-            <div className="text-xs text-gray-400">
-              https://domain@example.com
-            </div>
-          </button>
+          {pages.length > 0 && (
+            <select
+              className="rounded-xl border border-gray-200 bg-gray-100 px-6 py-2 text-sm text-gray-800"
+              onChange={(e) => {
+                const selectedId = e.target.value;
+                console.log("Selected page ID:", selectedId);
+                // Optional: do something with the selected page ID
+              }}
+            >
+              {pages.map((page) => (
+                <option key={page.id} value={page.id}>
+                  {page.name}
+                </option>
+              ))}
+            </select>
+          )}
 
           {/* Preview Website  */}
           <button

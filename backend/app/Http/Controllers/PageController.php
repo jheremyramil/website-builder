@@ -15,7 +15,7 @@ class PageController extends Controller
 
     public function getAll(Request $request)
     {
-        $page = $request->query('page', 1); // Default to page 1 if not specified
+        $page = $request->query('page', 1);
         $pages = Page::paginate(5, ['*'], 'page', $page);
         return response()->json($pages, 200);
     }

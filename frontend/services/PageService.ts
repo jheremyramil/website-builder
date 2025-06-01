@@ -31,12 +31,15 @@ export const getPagesByUserId = cache(async (userId: number, page = 1) => {
   const session = await verifySession();
   if (!session) return null;
 
+  const user_id = session.userId;
+  console.log(user_id);
+
   if (!userId) {
     throw new Error("User ID is undefined");
   }
 
   try {
-    const response = await axios.get(`${API_BASE_URL}/page/user/${userId}`, {
+    const response = await axios.get(`${API_BASE_URL}/page/user/${user_id}`, {
       withCredentials: true,
       headers: {
         "Content-Type": "application/json",
@@ -44,6 +47,7 @@ export const getPagesByUserId = cache(async (userId: number, page = 1) => {
       params: { page },
     });
 
+    console.log("Response from getPagesByUserId:", response.data);
     return response.data;
   } catch (error) {
     console.error("Failed to get pages by user ID", error);
@@ -118,23 +122,22 @@ export const updatePage = async (pageId: number, data: any) => {
   }
 };
 
-export const deletePage = async (pageId: number) => {
-  const session = await verifySession();
-  if (!session) return null;
+export const deletePageById = async (id: number) => {
+  const res = await fetch(`${API_BASE_URL}/page/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 
-  if (!pageId) {
-    throw new Error("Page ID is undefined");
+  if (!res.ok) {
+    throw new Error("Failed to delete the page");
   }
 
-  try {
-    const response = await axios.delete(`${API_BASE_URL}/page/${pageId}`, {
-      withCredentials: true,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Failed to Delete Page", error);
+  if (res.status === 204) {
+    return;
   }
+
+  return await res.json();
 };
