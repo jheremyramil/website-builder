@@ -29,6 +29,13 @@ const Login = () => {
 
       router.push("/dashboard");
     }
+    if (state?.errors?.form && !isPending) {
+      toast({
+        title: "Login failed",
+        description: state.errors.form[0],
+        variant: "destructive",
+      });
+    }
   }, [state, isPending, router, toast]);
 
   return (

@@ -18,16 +18,18 @@ const Register = () => {
   useEffect(() => {
     if (state?.errors?.email) {
       toast({
-        title: "Invalid Email",
-        description: "Email must be a valid email address format",
+        title: "Email error",
+        description: Array.isArray(state.errors.email)
+          ? state.errors.email.join(", ")
+          : state.errors.email,
         variant: "destructive",
       });
     }
 
     if (state?.errors?.password) {
       toast({
-        title: "Password validation failed",
-        description: "Please check the password requirements",
+        title: "Password validation fail!",
+        description: "Password must meet the criteria",
         variant: "destructive",
       });
     }
@@ -39,13 +41,13 @@ const Register = () => {
         variant: "success",
       });
 
-      const timeout = setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         router.push("/dashboard");
       }, 1000);
 
-      return () => clearTimeout(timeout);
+      return () => clearTimeout(timeoutId);
     }
-  }, [state?.user, state?.errors, isPending, router, toast]);
+  }, [state, isPending, router, toast]);
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-indigo-50 to-gray-100">

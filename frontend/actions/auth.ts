@@ -58,19 +58,37 @@ export async function signupAction(prevState: any, formData: FormData) {
 
   try {
     const response = await register(data);
+    console.log("✅ Register response:", response);
+
+    const user = response?.user;
+    const token = response?.token;
+
+    if (!user || !token) {
+      throw new Error("Invalid response structure from server.");
+    }
 
     return {
-      user: response.data.user,
-      token: response.data.token,
+      user,
+      token,
       errors: null,
+      success: true,
     };
   } catch (error: any) {
+    console.error("Error in signupAction:", error);
+
+    let errors = { general: ["Something went wrong. Please try again."] };
+
+    if (error.response?.data?.data) {
+      errors = error.response.data.data;
+    } else if (error.message) {
+      errors = { general: [error.message] };
+    }
+
     return {
       user: null,
       token: null,
-      errors: error.validationErrors || {
-        general: ["Something went wrong. Try again."],
-      },
+      errors,
+      success: false,
     };
   }
 }

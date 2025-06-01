@@ -16,11 +16,9 @@ export async function login(data: any) {
         Accept: "application/json",
       },
     });
-
     const result = response.data;
-    console.log(response.data);
+    console.log(result);
 
-    // Laravel-style error handling
     if (result.success === false || !result.data) {
       throw new Error(result.message || "Login failed");
     }
@@ -35,7 +33,6 @@ export async function login(data: any) {
   } catch (error: any) {
     console.error("Failed to login:", error);
 
-    // Axios error from server (Laravel)
     if (error.response && error.response.data?.message) {
       throw new Error(error.response.data.message);
     }
@@ -46,34 +43,18 @@ export async function login(data: any) {
 
 export async function register(data: any) {
   try {
+    console.log("Registering with:", data); // debug log
+
     const response = await axios.post(`${API_BASE_URL}/register`, data, {
       withCredentials: true,
       headers: {
         "Content-Type": "application/json",
-        Accept: "application/json",
       },
     });
 
-    const result = response.data;
-
-    // Handle Laravel-style structure
-    if (result.success === false) {
-      const error = new Error(result.message || "Registration failed") as any;
-      error.validationErrors = result.errors;
-      throw error;
-    }
-
-    return result;
+    return response.data;
   } catch (error: any) {
-    console.error("Failed to Register", error);
-
-    // If Laravel validation errors
-    if (error.response && error.response.data?.errors) {
-      const newError = new Error("Validation failed") as any;
-      newError.validationErrors = error.response.data.errors;
-      throw newError;
-    }
-
-    throw new Error("Registration failed. Please try again.");
+    console.error("Failed to Register", error.response?.data || error);
+    throw error;
   }
 }

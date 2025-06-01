@@ -55,24 +55,25 @@ class AuthController extends Controller
         try {
             $validatedUser = Validator::make($request->all(), [
                 'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users',
+                'email' => 'required|string|email|max:255|unique:users,email',
                 'password' => 'required|string|min:6',
+            ], [
+                'email.unique' => 'This email is already registered.',
             ]);
-
+    
+            // Add this check:
             if ($validatedUser->fails()) {
-                $errors = $validatedUser->errors();
-            
-                return $this->error($errors, 422); 
+                return $this->error($validatedUser->errors(), 'Validation failed', 400);
             }
-
+    
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
             ]);
-
+    
             $token = $user->createToken('auth_token')->plainTextToken;
-
+    
             return $this->success([
                 'user' => $user,
                 'token' => $token
@@ -81,6 +82,8 @@ class AuthController extends Controller
             return $this->error($th->getMessage(), 500);
         }
     }
+    
+
 
     /**
      * Logout user and revoke tokens.
