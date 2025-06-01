@@ -27,6 +27,30 @@ export const getAllPages = cache(async (page = 1) => {
   }
 });
 
+export const getPagesByUserId = cache(async (userId: number, page = 1) => {
+  const session = await verifySession();
+  if (!session) return null;
+
+  if (!userId) {
+    throw new Error("User ID is undefined");
+  }
+
+  try {
+    const response = await axios.get(`${API_BASE_URL}/page/user/${userId}`, {
+      withCredentials: true,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      params: { page },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Failed to get pages by user ID", error);
+    return null;
+  }
+});
+
 export const getPageById = cache(async (pageId: number) => {
   const session = await verifySession();
   if (!session) return null;
@@ -50,8 +74,16 @@ export const getPageById = cache(async (pageId: number) => {
 });
 
 export const createPage = async (data: any) => {
+  const session = await verifySession();
+  if (!session) return null;
+
+  const userId = session.userId;
+  if (!userId) {
+    throw new Error("User ID is undefined");
+  }
+
   try {
-    const response = await axios.post(`${API_BASE_URL}/page`, data, {
+    const response = await axios.post(`${API_BASE_URL}/page/${userId}`, data, {
       withCredentials: true,
       headers: {
         "Content-Type": "application/json",
@@ -95,7 +127,7 @@ export const deletePage = async (pageId: number) => {
   }
 
   try {
-    const response = await axios.put(`${API_BASE_URL}/page/${pageId}`, {
+    const response = await axios.delete(`${API_BASE_URL}/page/${pageId}`, {
       withCredentials: true,
       headers: {
         "Content-Type": "application/json",

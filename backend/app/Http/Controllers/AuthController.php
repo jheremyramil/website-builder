@@ -35,6 +35,7 @@ class AuthController extends Controller
             $token = $user->createToken('auth_token')->plainTextToken;
     
             return $this->success([
+                'user_id' => $user->id,
                 'user' => $user,
                 'token' => $token
             ], 'User logged in successfully');
@@ -43,6 +44,7 @@ class AuthController extends Controller
             return $this->error($th->getMessage(), 500);
         }
     }
+    
     
 
     /**

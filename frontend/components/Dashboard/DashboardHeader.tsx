@@ -1,5 +1,7 @@
 "use client";
+import React, { useEffect, useState } from "react";
 import { logoutAction } from "@/actions";
+import { profile } from "@/services/ProfileService"; // import the fetch function
 import { CircleUserRoundIcon } from "lucide-react";
 import {
   Avatar,
@@ -14,6 +16,21 @@ import {
 } from "../ui";
 
 const DashboardHeader = () => {
+  const [userName, setUserName] = useState("Loading...");
+
+  useEffect(() => {
+    async function fetchProfile() {
+      try {
+        const data = await profile();
+        setUserName(data.name || "Unknown User");
+      } catch {
+        setUserName("Guest");
+      }
+    }
+
+    fetchProfile();
+  }, []);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="flex items-center justify-center gap-x-2 rounded-xl bg-gray-100 px-4 py-2">
@@ -24,7 +41,7 @@ const DashboardHeader = () => {
           </AvatarFallback>
         </Avatar>
 
-        <span className="text-sm leading-6 font-semibold">Administrator</span>
+        <span className="text-sm leading-6 font-semibold">{userName}</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuLabel>My Account</DropdownMenuLabel>

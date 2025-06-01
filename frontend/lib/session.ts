@@ -3,7 +3,6 @@
 import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { cache } from "react";
 
 const secretKey = process.env.SESSION_SECRET!;
 const encodedKey = new TextEncoder().encode(secretKey);
@@ -31,7 +30,7 @@ export async function decrypt(session: string | undefined = "") {
 export async function createSession(userId: string, token: string) {
   const session = await encrypt({ userId });
 
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
 
   cookieStore.set("session", session, {
     httpOnly: true,
@@ -51,13 +50,15 @@ export async function createSession(userId: string, token: string) {
 }
 
 export async function updateSession() {
-  const session = cookies().get("session")?.value;
-  const payload = await decrypt(session);
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get("session")?.value;
+  const payload = await decrypt(sessionCookie);
 
-  if (!session || !payload) return null;
+  if (!sessionCookie || !payload) return null;
 
   const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-  cookies().set("session", session, {
+
+  cookieStore.set("session", sessionCookie, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
@@ -67,7 +68,8 @@ export async function updateSession() {
 }
 
 export async function verifySession() {
-  const cookie = cookies().get("session")?.value;
+  const cookieStore = await cookies();
+  const cookie = cookieStore.get("session")?.value;
   const session = await decrypt(cookie);
 
   if (!session?.userId) {
@@ -78,7 +80,7 @@ export async function verifySession() {
 }
 
 export async function deleteSession() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   cookieStore.delete("session");
   cookieStore.delete("token");
 }

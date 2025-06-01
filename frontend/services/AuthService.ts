@@ -18,6 +18,7 @@ export async function login(data: any) {
     });
 
     const result = response.data;
+    console.log(response.data);
 
     // Laravel-style error handling
     if (result.success === false || !result.data) {

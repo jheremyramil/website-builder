@@ -24,10 +24,23 @@ export const signinAction = async (_: any, formData: FormData) => {
   }
 
   try {
-    const { user, token } = await login({ email, password });
+    const { user, token } = await login({
+      email,
+      password,
+    });
+
+    console.log("✅ Logged in User ID:", user.id);
+    console.log("✅ Full User:", user);
+    console.log("✅ Token:", token);
+
     await createSession(user.id, token);
-    return { user };
+
+    return {
+      user,
+      token,
+    };
   } catch (error: any) {
+    console.error("❌ Login error:", error);
     return {
       errors: {
         form: [error.message || "An error occurred. Please try again."],

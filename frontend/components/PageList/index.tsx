@@ -1,6 +1,5 @@
 "use client";
 
-import { getAllPageAction } from "@/actions";
 import { usePageStore } from "@/store";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -20,6 +19,7 @@ import {
   TableRow,
 } from "../ui";
 import Spinner from "../ui/spinner";
+import { getPagesByUserAction } from "@/actions";
 
 const PageList = () => {
   const { pages, currentPage, totalPages, setPages } = usePageStore();
@@ -30,7 +30,7 @@ const PageList = () => {
     setIsLoading(true);
     setHasError(false);
     try {
-      const response = await getAllPageAction(page);
+      const response = await getPagesByUserAction(page);
 
       if (!response || !response.data) {
         console.warn("No data returned from API.");

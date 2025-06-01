@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect } from "react";
 import { FiMail, FiLock, FiArrowRight } from "react-icons/fi";
+import { useState } from "react";
 
 const Login = () => {
   const { toast } = useToast();
@@ -16,21 +17,17 @@ const Login = () => {
 
   useEffect(() => {
     if (state?.user && !isPending) {
+      console.log("Logged-in user:", state.user);
+      console.log("Token:", state.token);
+      console.log("User ID:", state.user.id);
+
       toast({
         title: "Welcome back!",
-        description: `Hi, ${state?.user.name}!`,
+        description: `Hi, ${state.user.name}!`,
         variant: "success",
       });
 
       router.push("/dashboard");
-    }
-
-    if (state?.errors?.form && !isPending) {
-      toast({
-        title: "Login failed",
-        description: state.errors.form[0],
-        variant: "destructive",
-      });
     }
   }, [state, isPending, router, toast]);
 
