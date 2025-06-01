@@ -9,12 +9,15 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
-        Schema::table('pages', function (Blueprint $table) {
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-        });
+        if (!Schema::hasColumn('pages', 'user_id')) {
+            Schema::table('pages', function (Blueprint $table) {
+                $table->unsignedBigInteger('user_id')->nullable(false);
+            });
+        }
     }
+    
     
 
     /**
