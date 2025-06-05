@@ -136,13 +136,6 @@ const initGrapesJSEditor = (
         }
       },
     },
-    deviceManager: {
-      devices: [
-        { name: "desktop", width: "" },
-        { name: "tablet", width: "768px", widthMedia: "992px" },
-        { name: "mobile", width: "375px", widthMedia: "480px" },
-      ],
-    },
 
     storageManager: {
       type: "remote",

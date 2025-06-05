@@ -1,8 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { logoutAction } from "@/actions";
-import { profile } from "@/services/ProfileService"; // import the fetch function
-import { CircleUserRoundIcon } from "lucide-react";
+import { CircleUserRoundIcon, House, LogOutIcon } from "lucide-react";
 import {
   Avatar,
   AvatarFallback,
@@ -14,14 +13,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui";
+import { useRouter } from "next/navigation";
+import { profile } from "@/services/ProfileService";
+import UserAvatar from "../Avatar/UserAvatar";
+
+interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  created_at: string;
+}
 
 const DashboardHeader = () => {
   const [userName, setUserName] = useState("Loading...");
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchProfile() {
       try {
         const data = await profile();
+        setUser(data); // <--- This line was missing
         setUserName(data.name || "Unknown User");
       } catch {
         setUserName("Guest");
@@ -31,22 +43,38 @@ const DashboardHeader = () => {
     fetchProfile();
   }, []);
 
+  const navigateToProfile = () => {
+    router.push("/profile");
+  };
+
+  const navigateToDashboard = () => {
+    router.push("/dashboard");
+  };
+
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center justify-center gap-x-2 rounded-xl bg-gray-100 px-4 py-2">
-        <Avatar className="h-8 w-8">
-          <AvatarImage src="https://github.com/shadcn.png" />
-          <AvatarFallback>
-            <CircleUserRoundIcon className="h-8 w-8 stroke-current text-gray-400" />
-          </AvatarFallback>
-        </Avatar>
-
-        <span className="text-sm leading-6 font-semibold">{userName}</span>
+      <DropdownMenuTrigger className="flex items-center justify-center gap-x-2 rounded-xl bg-gray-100 px-4 py-2 hover:bg-gray-200 transition-colors">
+        {user ? (
+          <>
+            <UserAvatar userId={user.id} size="sm" />
+            <span className="text-sm leading-6 font-semibold">{userName}</span>
+          </>
+        ) : (
+          <span className="text-sm leading-6 font-semibold">Loading...</span>
+        )}
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
+
+      <DropdownMenuContent className="w-56" align="end">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>Profile</DropdownMenuItem>
+        <DropdownMenuItem onClick={navigateToDashboard}>
+          <House className="mr-2 h-4 w-4" />
+          Dashboard
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={navigateToProfile}>
+          <CircleUserRoundIcon className="mr-2 h-4 w-4" />
+          Profile
+        </DropdownMenuItem>
         <LogoutItem />
       </DropdownMenuContent>
     </DropdownMenu>
@@ -64,5 +92,10 @@ const LogoutItem = () => {
     }
   };
 
-  return <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>;
+  return (
+    <DropdownMenuItem onClick={handleLogout}>
+      <LogOutIcon className="mr-2 h-4 w-4" />
+      Logout
+    </DropdownMenuItem>
+  );
 };
