@@ -19,6 +19,7 @@ import gjsPresetTooltip from "grapesjs-tooltip";
 import "grapesjs/dist/css/grapes.min.css";
 import { fontOptions } from "@/utils/fonts";
 import registerCustomCarousel from "@/components/features/carouselBlock";
+import { registerYouTubeVideoComponent } from "@/components/features/YouTubeVideo";
 
 const isBrowser = typeof window !== "undefined";
 
@@ -83,11 +84,26 @@ const initGrapesJSEditor = (
           const embedUrl = getYouTubeEmbedUrl(youtubeUrl);
 
           if (embedUrl) {
-            const am = editor.AssetManager;
+            // Instead of am.add, insert the custom component
+            const selectedComponent = editor.getSelected();
+            if (selectedComponent) {
+              // If a component is selected, insert next to it
+              selectedComponent.parent().append(
+                {
+                  type: "youtube-video",
+                  traits: [{ name: "youtubeUrl", value: youtubeUrl }],
+                },
+                { at: selectedComponent.index() + 1 }
+              );
+            } else {
+              // Otherwise, add to the main canvas
+              editor.addComponents({
+                type: "youtube-video",
+                traits: [{ name: "youtubeUrl", value: youtubeUrl }],
+              });
+            }
 
-            // ✅ Add YouTube Embed URL to GrapesJS
-            am.add({ type: "video", src: embedUrl });
-            am.render();
+            editor.AssetManager.render(); // Re-render asset manager if needed
             return;
           }
 
@@ -198,6 +214,7 @@ const initGrapesJSEditor = (
   });
 
   registerCustomCarousel(editor);
+  registerYouTubeVideoComponent(editor);
   addEditorCommand(editor);
 
   if (assets) {

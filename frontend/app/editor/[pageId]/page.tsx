@@ -41,7 +41,7 @@ const PageDetail = () => {
         {/* Blocks (Sidebar) on the left */}
         <Blocks />
 
-        <main className="flex-1 p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+        <main className=" flex-1 p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
           <Editor />
         </main>
 
