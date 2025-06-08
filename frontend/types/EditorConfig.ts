@@ -19,9 +19,13 @@ import gjsPresetTooltip from "grapesjs-tooltip";
 import "grapesjs/dist/css/grapes.min.css";
 import { fontOptions } from "@/utils/fonts";
 import registerCustomCarousel from "@/components/features/carouselBlock";
+import { registerYouTubeVideoComponent } from "@/components/features/YouTubeVideo";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api";
+const isBrowser = typeof window !== "undefined";
+
+const API_BASE_URL = isBrowser
+  ? process.env.NEXT_PUBLIC_API_BASE_URL
+  : process.env.INTERNAL_API_BASE_URL;
 
 const initGrapesJSEditor = (
   container: HTMLElement,
@@ -80,11 +84,26 @@ const initGrapesJSEditor = (
           const embedUrl = getYouTubeEmbedUrl(youtubeUrl);
 
           if (embedUrl) {
-            const am = editor.AssetManager;
+            // Instead of am.add, insert the custom component
+            const selectedComponent = editor.getSelected();
+            if (selectedComponent) {
+              // If a component is selected, insert next to it
+              selectedComponent.parent().append(
+                {
+                  type: "youtube-video",
+                  traits: [{ name: "youtubeUrl", value: youtubeUrl }],
+                },
+                { at: selectedComponent.index() + 1 }
+              );
+            } else {
+              // Otherwise, add to the main canvas
+              editor.addComponents({
+                type: "youtube-video",
+                traits: [{ name: "youtubeUrl", value: youtubeUrl }],
+              });
+            }
 
-            // ✅ Add YouTube Embed URL to GrapesJS
-            am.add({ type: "video", src: embedUrl });
-            am.render();
+            editor.AssetManager.render(); // Re-render asset manager if needed
             return;
           }
 
@@ -133,13 +152,6 @@ const initGrapesJSEditor = (
         }
       },
     },
-    deviceManager: {
-      devices: [
-        { name: "desktop", width: "" },
-        { name: "tablet", width: "768px", widthMedia: "992px" },
-        { name: "mobile", width: "375px", widthMedia: "480px" },
-      ],
-    },
 
     storageManager: {
       type: "remote",
@@ -163,7 +175,7 @@ const initGrapesJSEditor = (
     plugins: [
       gjsBlockBasic,
       gjsPluginExport,
-      gjsStyleBG,
+      //gjsStyleBG,
       gjsPresetNavbar,
       gjsPresetForms,
       gjsPresetTooltip,
@@ -171,7 +183,7 @@ const initGrapesJSEditor = (
     pluginsOpts: {
       gjsBlockBasic: {},
       gjsPluginExport: {},
-      gjsStyleBG: {},
+      //gjsStyleBG: {},
       gjsPresetNavbar: {},
       gjsPresetForms: {},
       gjsPresetTooltip: {},
@@ -202,6 +214,7 @@ const initGrapesJSEditor = (
   });
 
   registerCustomCarousel(editor);
+  registerYouTubeVideoComponent(editor);
   addEditorCommand(editor);
 
   if (assets) {
@@ -225,7 +238,6 @@ const initGrapesJSEditor = (
         editor.loadProjectData({ pages, styles, assets });
 
         return projectData;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         console.error(error?.message || "An unexpected error occurred.");
         return initializeEditorWithDefaultData();

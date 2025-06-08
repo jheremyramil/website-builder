@@ -34,14 +34,14 @@ const PageDetail = () => {
   }, [templateId, assets, setEditor]);
 
   return (
-    <div className="h-screen flex flex-col bg-gray-100 font-sans text-gray-900 overflow-x-hidden">
+    <div className=" flex flex-col bg-gray-100 font-sans text-gray-900 overflow-x-hidden">
       <Navbar />
 
       <div className="flex overflow-hidden">
         {/* Blocks (Sidebar) on the left */}
         <Blocks />
 
-        <main className="flex-1 p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+        <main className=" flex-1 p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
           <Editor />
         </main>
 

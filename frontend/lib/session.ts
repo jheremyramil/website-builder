@@ -3,7 +3,6 @@
 import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { cache } from "react";
 
 const secretKey = process.env.SESSION_SECRET!;
 const encodedKey = new TextEncoder().encode(secretKey);
@@ -21,49 +20,56 @@ export async function decrypt(session: string | undefined = "") {
     const { payload } = await jwtVerify(session, encodedKey, {
       algorithms: ["HS256"],
     });
-
     return payload;
   } catch (error) {
     console.error("Failed to verify session", error);
+    return null;
   }
 }
 
 export async function createSession(userId: string, token: string) {
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-  const sessionData = { userId, token, expiresAt };
+  const session = await encrypt({ userId });
 
-  const session = await encrypt(sessionData);
-  (await cookies()).set("session", session, {
+  const cookieStore = await cookies();
+
+  cookieStore.set("session", session, {
     httpOnly: true,
-    secure: true,
-    expires: expiresAt,
-    sameSite: "strict",
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24 * 7, // 1 week
+    path: "/",
+  });
+
+  cookieStore.set("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24 * 7,
     path: "/",
   });
 }
 
 export async function updateSession() {
-  const session = (await cookies()).get("session")?.value;
-  const payload = await decrypt(session);
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get("session")?.value;
+  const payload = await decrypt(sessionCookie);
 
-  if (!session || !payload) {
-    return null;
-  }
+  if (!sessionCookie || !payload) return null;
 
   const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-  const cookieStore = await cookies();
-  cookieStore.set("session", session, {
+  cookieStore.set("session", sessionCookie, {
     httpOnly: true,
-    secure: true,
-    expires: expires,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
+    expires,
     path: "/",
   });
 }
 
-export const verifySession = cache(async () => {
-  const cookie = (await cookies()).get("session")?.value;
+export async function verifySession() {
+  const cookieStore = await cookies();
+  const cookie = cookieStore.get("session")?.value;
   const session = await decrypt(cookie);
 
   if (!session?.userId) {
@@ -71,9 +77,10 @@ export const verifySession = cache(async () => {
   }
 
   return { isAuth: true, userId: session.userId };
-});
+}
 
 export async function deleteSession() {
   const cookieStore = await cookies();
   cookieStore.delete("session");
+  cookieStore.delete("token");
 }

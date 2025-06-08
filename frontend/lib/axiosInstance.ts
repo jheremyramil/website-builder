@@ -16,12 +16,11 @@ export const axiosInstance = axios.create({
 
 // Request Interceptor
 axiosInstance.interceptors.request.use(
-  async (config) => {
-    const cookie = (await cookies()).get("session")?.value;
-    const session = cookie ? await decrypt(cookie) : null;
-
-    if (session) {
-      config.headers.Authorization = `Bearer ${session.token}`;
+  (config) => {
+    // Get token from localStorage (since cookie is HTTP-only)
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },

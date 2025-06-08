@@ -15,10 +15,25 @@ class PageController extends Controller
 
     public function getAll(Request $request)
     {
-        $page = $request->query('page', 1); // Default to page 1 if not specified
+        $page = $request->query('page', 1);
         $pages = Page::paginate(5, ['*'], 'page', $page);
         return response()->json($pages, 200);
     }
+
+    public function getPagesByUserId(Request $request, $userId)
+    {
+        try {
+            $pages = Page::where('user_id', $userId)->paginate(5);
+    
+            return $this->success([
+                'pages' => $pages,
+            ], 'Pages fetched successfully', 200, false);
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
+    
+
 
     public function getPageById($id)
     {
@@ -34,18 +49,19 @@ class PageController extends Controller
         }
     }
 
-    public function createPage(Request $request)
+    public function createPage(Request $request, $userId)
     {
         try {
             $validated = $request->validate([
                 'name' => 'required|string',
                 'slug' => 'nullable|string',
             ]);
-
-            $validated['slug'] = $validated['name'] ?? Str::of($validated['name'])->slug()->lower();
-
+    
+            $validated['slug'] = $validated['slug'] ?? Str::of($validated['name'])->slug()->lower();
+            $validated['user_id'] = $userId; 
+    
             $page = Page::create($validated);
-
+    
             return $this->success([
                 'page' => $page
             ], 'Page created successfully!', 200, false);
@@ -53,7 +69,7 @@ class PageController extends Controller
             return $this->error($th->getMessage(), 500);
         }
     }
-
+    
     public function saveContent(Request $request, $id)
     {
         try {
