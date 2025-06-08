@@ -1,5 +1,5 @@
 import { CreatePageSchema } from "@/lib";
-import { createPage, getAllPages } from "@/services";
+import { createPage, getAllPages, getPagesByUserId } from "@/services";
 
 export const createPageAction = async (state: any, formData: FormData) => {
   const validatedFields = CreatePageSchema.safeParse({
@@ -22,11 +22,11 @@ export const createPageAction = async (state: any, formData: FormData) => {
   }
 };
 
-export const getAllPageAction = async (page: number) => {
+export const getPagesByUserAction = async (userId: number, page = 1) => {
   try {
-    const response = await getAllPages(page);
+    const response = await getPagesByUserId(userId, page);
     return response;
   } catch (error) {
-    console.error("Failed Creating Page", error);
+    console.error("Failed fetching user's pages", error);
   }
 };

@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
       dynamic: 30,
     },
   },
+  devIndicators: false,
   images: {
     remotePatterns: [
       {

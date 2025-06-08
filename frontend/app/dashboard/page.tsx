@@ -1,8 +1,13 @@
 import CreatePageDialog from "@/components/Dashboard/CreatePageDialog";
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
 import PageList from "@/components/PageList";
+import { verifySession } from "@/lib";
+import ClientComponent from "@/components/ClientComponent";
 
 export const DashboardPage = async () => {
+  const session = await verifySession();
+  console.log(session);
+
   return (
     <div className="h-screen flex flex-col bg-gray-100 font-sans text-gray-900">
       <div className="flex h-screen flex-1 flex-col">

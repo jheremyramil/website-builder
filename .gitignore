@@ -80,6 +80,8 @@ _backend/_ide_helper_models.php
 /frontend/.env.local
 /frontend/.env.*.local
 /frontend/.env.*.backup
+/frontend/env.dev
+/frontend/env.prod
 
 # Test coverage reports
 /frontend/coverage/
