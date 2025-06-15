@@ -27,6 +27,8 @@ Route::post('/page/{userId}', [PageController::class, 'createPage']);
 Route::put('/page/{id}', [PageController::class, 'updatePage']);
 Route::delete('/page/{id}', [PageController::class, 'deletePage']);
 Route::get('/page/user/{userId}', [PageController::class, 'getPagesByUserId']);
+Route::get('/page/user/{userId}/all', [PageController::class, 'getAllPagesByUserId']);
+Route::get('/page/slug/{slug}', [PageController::class, 'getPageBySlug']);
 
 
 // Page Content

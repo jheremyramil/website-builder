@@ -56,8 +56,8 @@ const initGrapesJSEditor = (
     traitManager,
     panels,
     assetManager: {
-      uploadName: "file", // File key
-      assets: [], // Store external images
+      uploadName: "file",
+      assets: [],
       headers: {
         "X-CSRF-TOKEN": document
           .querySelector('meta[name="csrf-token"]')
@@ -71,23 +71,20 @@ const initGrapesJSEditor = (
 
         if (files && files.length > 0) {
           if (files.length === 1) {
-            formData.append("file", files[0]); // Handle single file upload
+            formData.append("file", files[0]);
           } else {
             Array.from(files).forEach((file) => {
-              formData.append("files[]", file); // Handle multiple file uploads
+              formData.append("files[]", file);
             });
           }
         } else {
           const youtubeUrl = (e.target as HTMLInputElement)?.value?.trim();
 
-          // 🛠️ Check if it's a YouTube URL
           const embedUrl = getYouTubeEmbedUrl(youtubeUrl);
 
           if (embedUrl) {
-            // Instead of am.add, insert the custom component
             const selectedComponent = editor.getSelected();
             if (selectedComponent) {
-              // If a component is selected, insert next to it
               selectedComponent.parent().append(
                 {
                   type: "youtube-video",
@@ -96,14 +93,13 @@ const initGrapesJSEditor = (
                 { at: selectedComponent.index() + 1 }
               );
             } else {
-              // Otherwise, add to the main canvas
               editor.addComponents({
                 type: "youtube-video",
                 traits: [{ name: "youtubeUrl", value: youtubeUrl }],
               });
             }
 
-            editor.AssetManager.render(); // Re-render asset manager if needed
+            editor.AssetManager.render();
             return;
           }
 
