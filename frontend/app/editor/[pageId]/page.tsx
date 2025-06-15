@@ -14,38 +14,53 @@ const RightSidebar = dynamic(() => import("@/components/RightSidebar"), {
 });
 
 const PageDetail = () => {
-  const { pageId } = useParams();
-  const { setEditor, setTemplateId, assets, templateId, editorRef } =
-    useEditorStore();
+  const params = useParams();
+  const rawPageId = params?.pageId;
+  const pageId = Array.isArray(rawPageId) ? rawPageId[0] : rawPageId;
+
+  const { setEditor, setTemplateId, assets, editorRef } = useEditorStore();
 
   useEffect(() => {
-    const id = Array.isArray(pageId) ? pageId[0] : pageId;
-    if (!id) return;
-    setTemplateId(id);
-  }, [pageId, setTemplateId]);
+    if (!pageId) return;
 
-  useEffect(() => {
-    if (!editorRef.current || !templateId) return;
+    let raf: number;
+    let cleanupEditor: any;
 
-    const editor = initGrapesJSEditor(editorRef.current, templateId, assets);
-    setEditor(editor);
+    const waitForRef = () => {
+      if (!editorRef.current) {
+        raf = requestAnimationFrame(waitForRef);
+        return;
+      }
 
-    return () => editor.destroy();
-  }, [templateId, assets, setEditor]);
+      const editor = initGrapesJSEditor(
+        editorRef.current,
+        pageId,
+        assets,
+        pageId
+      );
+
+      setEditor(editor);
+      cleanupEditor = editor;
+    };
+
+    waitForRef();
+
+    return () => {
+      cancelAnimationFrame(raf);
+      if (cleanupEditor && typeof cleanupEditor.destroy === "function") {
+        cleanupEditor.destroy();
+      }
+    };
+  }, [pageId, assets, setEditor]);
 
   return (
-    <div className=" flex flex-col bg-gray-100 font-sans text-gray-900 overflow-x-hidden">
+    <div className="flex flex-col bg-gray-100 font-sans text-gray-900 overflow-x-hidden">
       <Navbar />
-
       <div className="flex overflow-hidden">
-        {/* Blocks (Sidebar) on the left */}
         <Blocks />
-
-        <main className=" flex-1 p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+        <main className="flex-1 p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
           <Editor />
         </main>
-
-        {/* Styles and Layer Manager */}
         <RightSidebar />
       </div>
     </div>
