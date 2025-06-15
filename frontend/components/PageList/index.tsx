@@ -30,25 +30,39 @@ import { getPagesByUserAction } from "@/actions";
 import { motion } from "framer-motion";
 import CreatePageDialog from "../Dashboard/CreatePageDialog";
 import { deletePageById } from "@/services";
+import React from "react";
+import { verifySession } from "@/lib/session";
+import { getPagesByUserId } from "@/services";
 
 const PageList = () => {
-  const { pages, currentPage, totalPages, setPages } = usePageStore();
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [pageToDelete, setPageToDelete] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { pages, currentPage, totalPages, setPages, setCurrentPage } =
+    usePageStore();
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
+  const ITEMS_PER_PAGE = 8;
 
   const fetchPages = async (page: number) => {
+    console.log("Fetching pages for page:", page);
     setIsLoading(true);
     setHasError(false);
     try {
-      const response = await getPagesByUserAction(page);
+      const session = await verifySession();
+      if (!session) return;
+
+      const response = await getPagesByUserId(
+        session.userId,
+        page,
+        debouncedSearchTerm
+      );
 
       if (!response || !response.pages) {
         console.warn("No pages returned from API.");
-        setPages([], 1, 0);
+        setPages([], 1, 1);
         return;
       }
 
@@ -64,12 +78,28 @@ const PageList = () => {
   };
 
   useEffect(() => {
-    fetchPages(currentPage);
-  }, [currentPage]);
+    const fetchWithSearch = async () => {
+      if (currentPage !== 1) {
+        setCurrentPage(1);
+      }
+      await fetchPages(1);
+    };
+
+    fetchWithSearch();
+  }, [debouncedSearchTerm]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 900);
+
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
 
   const handlePageChange = (page: number) => {
-    if (page > 0 && page <= totalPages) {
-      setPages(pages, page, totalPages);
+    if (page > 0 && page <= totalPages && page !== currentPage) {
+      setCurrentPage(page);
+      fetchPages(page); // <-- fetch with the correct page
     }
   };
 
@@ -96,11 +126,7 @@ const PageList = () => {
     }
   };
 
-  const filteredPages = pages?.filter(
-    (page) =>
-      page.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      page.slug.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredPages = pages;
 
   if (isLoading) {
     return (
@@ -152,7 +178,10 @@ const PageList = () => {
                 type="text"
                 placeholder="Search pages..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="pl-8 !border-0 !outline-none "
                 style={{ boxShadow: "none", outline: "none" }}
               />
@@ -211,13 +240,15 @@ const PageList = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredPages.map((page) => (
+                    {filteredPages.map((page, index) => (
                       <motion.tr
                         key={page.id}
                         whileHover={{ backgroundColor: "rgba(0, 0, 0, 0.02)" }}
                         transition={{ duration: 0.2 }}
                       >
-                        <TableCell className="font-medium">{page.id}</TableCell>
+                        <TableCell className="font-medium">
+                          {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
+                        </TableCell>
                         <TableCell>{page.name}</TableCell>
                         <TableCell className="text-gray-500">
                           /{page.slug}
@@ -263,27 +294,45 @@ const PageList = () => {
                         }
                       />
                     </PaginationItem>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                      (page) => (
-                        <PaginationItem key={page}>
-                          <PaginationLink
-                            href="#"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handlePageChange(page);
-                            }}
-                            isActive={currentPage === page}
-                            className={
-                              currentPage === page
-                                ? "bg-primary text-primary-foreground"
-                                : "hover:bg-gray-100"
-                            }
-                          >
-                            {page}
-                          </PaginationLink>
-                        </PaginationItem>
-                      )
-                    )}
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter((page) => {
+                        return (
+                          page === 1 || // Always show first page
+                          page === totalPages || // Always show last page
+                          (page >= currentPage - 2 && page <= currentPage + 2) // Show window around current page
+                        );
+                      })
+                      .map((page, index, arr) => {
+                        const prev = arr[index - 1];
+                        const showEllipsis = prev && page - prev > 1;
+                        return (
+                          <React.Fragment key={page}>
+                            {showEllipsis && (
+                              <PaginationItem>
+                                <span className="px-2 text-gray-500">...</span>
+                              </PaginationItem>
+                            )}
+                            <PaginationItem>
+                              <PaginationLink
+                                href="#"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  handlePageChange(page);
+                                }}
+                                isActive={currentPage === page}
+                                className={
+                                  currentPage === page
+                                    ? "bg-primary text-primary-foreground"
+                                    : "hover:bg-gray-100"
+                                }
+                              >
+                                {page}
+                              </PaginationLink>
+                            </PaginationItem>
+                          </React.Fragment>
+                        );
+                      })}
+
                     <PaginationItem>
                       <PaginationNext
                         href="#"

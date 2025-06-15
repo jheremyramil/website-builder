@@ -19,6 +19,7 @@ import gjsPresetTooltip from "grapesjs-tooltip";
 import "grapesjs/dist/css/grapes.min.css";
 import { fontOptions } from "@/utils/fonts";
 import registerCustomCarousel from "@/components/features/carouselBlock";
+import { registerYouTubeVideoComponent } from "@/components/features/YouTubeVideo";
 
 const isBrowser = typeof window !== "undefined";
 
@@ -55,8 +56,8 @@ const initGrapesJSEditor = (
     traitManager,
     panels,
     assetManager: {
-      uploadName: "file", // File key
-      assets: [], // Store external images
+      uploadName: "file",
+      assets: [],
       headers: {
         "X-CSRF-TOKEN": document
           .querySelector('meta[name="csrf-token"]')
@@ -70,24 +71,35 @@ const initGrapesJSEditor = (
 
         if (files && files.length > 0) {
           if (files.length === 1) {
-            formData.append("file", files[0]); // Handle single file upload
+            formData.append("file", files[0]);
           } else {
             Array.from(files).forEach((file) => {
-              formData.append("files[]", file); // Handle multiple file uploads
+              formData.append("files[]", file);
             });
           }
         } else {
           const youtubeUrl = (e.target as HTMLInputElement)?.value?.trim();
 
-          // 🛠️ Check if it's a YouTube URL
           const embedUrl = getYouTubeEmbedUrl(youtubeUrl);
 
           if (embedUrl) {
-            const am = editor.AssetManager;
+            const selectedComponent = editor.getSelected();
+            if (selectedComponent) {
+              selectedComponent.parent().append(
+                {
+                  type: "youtube-video",
+                  traits: [{ name: "youtubeUrl", value: youtubeUrl }],
+                },
+                { at: selectedComponent.index() + 1 }
+              );
+            } else {
+              editor.addComponents({
+                type: "youtube-video",
+                traits: [{ name: "youtubeUrl", value: youtubeUrl }],
+              });
+            }
 
-            // ✅ Add YouTube Embed URL to GrapesJS
-            am.add({ type: "video", src: embedUrl });
-            am.render();
+            editor.AssetManager.render();
             return;
           }
 
@@ -198,6 +210,7 @@ const initGrapesJSEditor = (
   });
 
   registerCustomCarousel(editor);
+  registerYouTubeVideoComponent(editor);
   addEditorCommand(editor);
 
   if (assets) {

@@ -16,14 +16,26 @@ class PageController extends Controller
     public function getAll(Request $request)
     {
         $page = $request->query('page', 1);
-        $pages = Page::paginate(5, ['*'], 'page', $page);
+        $pages = Page::paginate(8, ['*'], 'page', $page);
         return response()->json($pages, 200);
     }
 
     public function getPagesByUserId(Request $request, $userId)
     {
         try {
-            $pages = Page::where('user_id', $userId)->paginate(5);
+            $search = $request->query('search');
+            $page = $request->query('page', 1);
+        
+            $query = Page::where('user_id', $userId);
+        
+            if ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%$search%")
+                      ->orWhere('slug', 'like', "%$search%");
+                });
+            }
+        
+            $pages = $query->paginate(7, ['*'], 'page', $page);
     
             return $this->success([
                 'pages' => $pages,
@@ -33,6 +45,19 @@ class PageController extends Controller
         }
     }
     
+    public function getAllPagesByUserId($userId)
+    {
+        try {
+            $pages = Page::where('user_id', $userId)->get();
+
+            return $this->success([
+                'pages' => $pages,
+            ], 'All pages fetched successfully', 200, false);
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
+
 
 
     public function getPageById($id)
@@ -170,4 +195,18 @@ class PageController extends Controller
             return $this->error($th->getMessage(), 500);
         }
     }
+
+    public function getPageBySlug($slug)
+    {
+        try {
+            $page = Page::where('slug', $slug)->firstOrFail();
+
+            return $this->success([
+                'page' => $page,
+            ], 'Success getting page by slug', 200, false);
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
+
 }

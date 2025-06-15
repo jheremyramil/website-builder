@@ -27,33 +27,37 @@ export const getAllPages = cache(async (page = 1) => {
   }
 });
 
-export const getPagesByUserId = cache(async (userId: number, page = 1) => {
-  const session = await verifySession();
-  if (!session) return null;
+export const getPagesByUserId = cache(
+  async (userId: number, page = 1, searchTerm = "") => {
+    const session = await verifySession();
+    if (!session) return null;
 
-  const user_id = session.userId;
-  console.log(user_id);
+    const user_id = session.userId;
 
-  if (!userId) {
-    throw new Error("User ID is undefined");
+    if (!userId) {
+      throw new Error("User ID is undefined");
+    }
+
+    try {
+      const response = await axios.get(`${API_BASE_URL}/page/user/${user_id}`, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        params: {
+          page,
+          search: searchTerm, // 🔥 pass search term to backend
+        },
+      });
+
+      console.log("Response from getPagesByUserId:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Failed to get pages by user ID", error);
+      return null;
+    }
   }
-
-  try {
-    const response = await axios.get(`${API_BASE_URL}/page/user/${user_id}`, {
-      withCredentials: true,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      params: { page },
-    });
-
-    console.log("Response from getPagesByUserId:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error("Failed to get pages by user ID", error);
-    return null;
-  }
-});
+);
 
 export const getPageById = cache(async (pageId: number) => {
   const session = await verifySession();
@@ -141,3 +145,47 @@ export const deletePageById = async (id: number) => {
 
   return await res.json();
 };
+
+export const getAllPagesByUserId = cache(async (userId: number) => {
+  const session = await verifySession();
+  if (!session) return null;
+
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/page/user/${userId}/all`,
+      {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Failed to get all pages by user ID", error);
+    return null;
+  }
+});
+
+export const getPageBySlug = cache(async (slug: string) => {
+  const session = await verifySession();
+  if (!session) return null;
+
+  if (!slug) {
+    throw new Error("Slug is undefined");
+  }
+
+  try {
+    const response = await axios.get(`${API_BASE_URL}/page/slug/${slug}`, {
+      withCredentials: true,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data?.page;
+  } catch (error) {
+    console.error("Failed to get page by slug", error);
+    return null;
+  }
+});
