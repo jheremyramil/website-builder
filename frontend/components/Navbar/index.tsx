@@ -126,7 +126,6 @@ const Navbar = () => {
       const css = editor?.getCss();
 
       if (data && html && css) {
-        // Store to backend
         const response = await editor?.StorageManager.store(data);
 
         const slugName = slugify(selectedPage.name || "untitled-page");
@@ -151,9 +150,6 @@ const Navbar = () => {
           variant: "success",
           description: "Content saved and preview ready!",
         });
-
-        // Open preview after saving
-        handlePreviewPage();
       }
     } catch (error: any) {
       toast({

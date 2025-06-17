@@ -99,7 +99,7 @@ const PageList = () => {
   const handlePageChange = (page: number) => {
     if (page > 0 && page <= totalPages && page !== currentPage) {
       setCurrentPage(page);
-      fetchPages(page); // <-- fetch with the correct page
+      fetchPages(page);
     }
   };
 
