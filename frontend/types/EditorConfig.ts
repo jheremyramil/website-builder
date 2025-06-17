@@ -30,7 +30,6 @@ const API_BASE_URL = isBrowser
 const initGrapesJSEditor = (
   container: HTMLElement,
   templateId: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   assets: (string | Record<string, any>)[]
 ) => {
   const editor = grapesjs.init({

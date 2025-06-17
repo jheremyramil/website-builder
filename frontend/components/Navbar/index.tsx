@@ -35,6 +35,7 @@ import { profile } from "@/services/ProfileService";
 import { useRouter } from "next/navigation";
 import { slugify } from "@/utils/slugify";
 import { useParams } from "next/navigation";
+import { Slot } from "@radix-ui/react-slot";
 
 interface UserProfile {
   id: string;
@@ -112,17 +113,30 @@ const Navbar = () => {
     fetchPages();
   }, [userId, pageId]);
 
-  useEffect(() => {
-    console.log("userId:", userId);
-    console.log("pageId from params:", pageId);
-    console.log("selectedPage:", selectedPage);
-  }, [userId, pageId, selectedPage]);
+  // useEffect(() => {
+  //   console.log("userId:", userId);
+  //   console.log("pageId from params:", pageId);
+  //   console.log("selectedPage:", selectedPage);
+  // }, [userId, pageId, selectedPage]);
 
   const handleSubmit = async () => {
     try {
       const data = editor?.getProjectData();
-      if (data) {
+      const html = editor?.getHtml();
+      const css = editor?.getCss();
+
+      if (data && html && css) {
+        // Store to backend
         const response = await editor?.StorageManager.store(data);
+
+        const slugName = slugify(selectedPage.name || "untitled-page");
+
+        localStorage.setItem(`preview_html_${slugName}`, html);
+        localStorage.setItem(`preview_css_${slugName}`, css);
+        localStorage.setItem(
+          `preview_project_data_${slugName}`,
+          JSON.stringify(data)
+        );
 
         if (!response) {
           toast({
@@ -135,8 +149,11 @@ const Navbar = () => {
         toast({
           title: "Success!",
           variant: "success",
-          description: "Content updated successfully!",
+          description: "Content saved and preview ready!",
         });
+
+        // Open preview after saving
+        handlePreviewPage();
       }
     } catch (error: any) {
       toast({
@@ -150,19 +167,18 @@ const Navbar = () => {
   };
 
   const handlePreviewPage = () => {
-    if (!editor || !selectedPage) return;
+    if (!editor) return;
 
     const html = editor.getHtml();
-    const css = editor.getCss();
+    const styles = editor.getCss();
     const data = editor.getProjectData();
 
-    const dbName = selectedPage.name || "untitled-page";
+    const dbName = selectedPage?.name || "untitled-page";
     const slug = slugify(dbName);
 
-    console.log("HTML:", html);
-    console.log("Data:", data);
-    console.log("Resolved Page Name from DB:", dbName);
-    console.log("Slug:", slug);
+    localStorage.setItem(`preview_html_${slug}`, html);
+    localStorage.setItem(`preview_css_${slug}`, styles);
+    localStorage.setItem(`preview_project_data_${slug}`, JSON.stringify(data));
 
     window.open(`/preview/${slug}`, "_blank");
   };
