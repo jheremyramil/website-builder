@@ -114,7 +114,6 @@ const PageList = () => {
     setIsDeleting(true);
     try {
       await deletePageById(pageToDelete);
-      // Refresh the list after deletion
       fetchPages(currentPage);
     } catch (error) {
       console.error("Failed to delete page:", error);

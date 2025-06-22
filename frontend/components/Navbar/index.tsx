@@ -36,6 +36,15 @@ import { useRouter } from "next/navigation";
 import { slugify } from "@/utils/slugify";
 import { useParams } from "next/navigation";
 import { Slot } from "@radix-ui/react-slot";
+import handleSaveAndPublish from "../SaveAndPublishModal";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface UserProfile {
   id: string;
@@ -61,6 +70,8 @@ const Navbar = () => {
   const rawSlug = params?.slug;
   const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug;
 
+  const [openModal, setOpenModal] = useState(false);
+  const [publicLink, setPublicLink] = useState("");
   useEffect(() => {
     async function fetchProfile() {
       try {
@@ -113,6 +124,22 @@ const Navbar = () => {
     fetchPages();
   }, [userId, pageId]);
 
+  useEffect(() => {
+    if (!editor || !selectedPage) return;
+
+    const html = editor.getHtml();
+    const css = editor.getCss();
+    const projectData = editor.getProjectData();
+    const slug = slugify(selectedPage.name || "untitled-page");
+
+    localStorage.setItem(`preview_html_${slug}`, html);
+    localStorage.setItem(`preview_css_${slug}`, css);
+    localStorage.setItem(
+      `preview_project_data_${slug}`,
+      JSON.stringify(projectData)
+    );
+  }, [editor, selectedPage]);
+
   // useEffect(() => {
   //   console.log("userId:", userId);
   //   console.log("pageId from params:", pageId);
@@ -164,23 +191,81 @@ const Navbar = () => {
 
   const handlePreviewPage = () => {
     if (!editor) return;
-
-    const html = editor.getHtml();
-    const styles = editor.getCss();
-    const data = editor.getProjectData();
-
     const dbName = selectedPage?.name || "untitled-page";
     const slug = slugify(dbName);
-
-    localStorage.setItem(`preview_html_${slug}`, html);
-    localStorage.setItem(`preview_css_${slug}`, styles);
-    localStorage.setItem(`preview_project_data_${slug}`, JSON.stringify(data));
-
     window.open(`/preview/${slug}`, "_blank");
   };
 
   return (
     <div className="flex h-screen flex-1 flex-col">
+      <Dialog open={openModal} onOpenChange={setOpenModal}>
+        <DialogContent className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] border-0 p-0 shadow-2xl sm:rounded-1xl overflow-hidden">
+          {/* Main card with glass effect */}
+          <div className="relative overflow-hidden bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg p-8">
+            {/* Content */}
+            <DialogHeader>
+              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100/80 dark:bg-emerald-900/30 backdrop-blur-sm">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="36"
+                  height="36"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-emerald-500"
+                >
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <path d="m9 11 3 3L22 4" />
+                </svg>
+              </div>
+              <DialogTitle className="mt-6 text-center text-2xl font-bold text-gray-900 dark:text-white">
+                Published Successfully!
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="mt-6 text-center space-y-4">
+              <p className="text-gray-600 dark:text-gray-300 text-md">
+                Your page has been published. You can view it here:
+              </p>
+              <div className="mt-4 inline-block w-full max-w-md rounded-xl bg-gray-100/50 dark:bg-gray-800/70 px-5 py-4 border border-gray-200/50 dark:border-gray-700/50">
+                <div className="break-all font-mono text-sm text-blue-600 dark:text-blue-400">
+                  {`${window.location.origin}${publicLink}`}
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter className="mt-8">
+              <Button
+                onClick={() => window.open(publicLink, "_blank")}
+                className="w-full h-10 rounded-xl text-base font-medium transition-all duration-300 
+                    bg-gray-900 text-white hover:bg-black hover:shadow-lg hover:scale-[1.02]
+                    active:scale-95"
+              >
+                View Live Page
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="ml-2"
+                >
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                  <polyline points="15 3 21 3 21 9" />
+                  <line x1="10" y1="14" x2="21" y2="3" />
+                </svg>
+              </Button>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
       <header className="w-full bg-white border-b border-gray-200 px-4 py-3">
         {/* Desktop Layout */}
         <div className="hidden lg:flex items-center justify-between gap-4">
@@ -204,7 +289,7 @@ const Navbar = () => {
               >
                 {pages.map((page) => (
                   <option key={page.id} value={page.id.toString()}>
-                    {page.name}
+                    Page: {page.name}
                   </option>
                 ))}
               </select>
@@ -236,12 +321,19 @@ const Navbar = () => {
               Save
             </Button>
             <Button
-              onClick={handleSubmit}
+              onClick={() =>
+                handleSaveAndPublish({
+                  editor,
+                  selectedPage,
+                  toast,
+                  setOpenModal,
+                  setPublicLink,
+                })
+              }
               className="bg-green-400 text-gray-200 hover:bg-green-600 hover:text-white transition duration-300 text-sm"
             >
               Save & Publish
             </Button>
-
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center justify-center gap-x-2 rounded-xl bg-gray-100 px-4 py-2 hover:bg-gray-200 transition-colors">
                 {user ? (
@@ -360,7 +452,7 @@ const Navbar = () => {
                   Save
                 </Button>
                 <Button
-                  onClick={handleSubmit}
+                  onClick={handleSaveAndPublish}
                   className="bg-green-400 text-gray-200 hover:bg-green-600 hover:text-white transition duration-300 text-sm"
                 >
                   Save & Publish

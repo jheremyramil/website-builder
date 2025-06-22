@@ -34,7 +34,7 @@ Route::get('/page/slug/{slug}', [PageController::class, 'getPageBySlug']);
 // Page Content
 Route::get('/page/{id}/content', [PageController::class, 'loadContent']);
 Route::post('/page/{id}/content', [PageController::class, 'saveContent']);
-
+Route::get('/page/{userId}/{slug}', [PageController::class, 'getPageByUserIdAndSlug']);
 // Assets
 Route::get('/assets', [AssetController::class, 'getAll']);
 Route::post('/assets', [AssetController::class, 'upload']);
@@ -42,6 +42,7 @@ Route::post('/assets/youtube', [AssetController::class, 'storeYouTube']);
 
 //Profile
 Route::get('/profile/{userId}', [ProfileController::class, 'show']);
+Route::get('/page/{username}/{slug}', [PageController::class, 'getPageByUsernameAndSlug']);
 
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

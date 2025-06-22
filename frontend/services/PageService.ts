@@ -189,3 +189,28 @@ export const getPageBySlug = cache(async (slug: string) => {
     return null;
   }
 });
+
+export const getPageByUserIdAndSlug = cache(
+  async (userId: string | number, slug: string) => {
+    if (!userId || !slug) {
+      throw new Error("User ID or slug is undefined");
+    }
+
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/page/${userId}/${slug}`,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return response.data?.page;
+    } catch (error) {
+      console.error("Failed to get page by user ID and slug", error);
+      return null;
+    }
+  }
+);
