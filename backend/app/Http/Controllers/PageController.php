@@ -7,6 +7,7 @@ use App\Traits\ApiResponses;
 use App\Traits\ExtractYoutubeId;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Models\User; 
 
 class PageController extends Controller
 {
@@ -208,5 +209,20 @@ class PageController extends Controller
             return $this->error($th->getMessage(), 500);
         }
     }
+
+    public function getPageByUserIdAndSlug($userId, $slug)
+{
+    try {
+        $page = Page::where('user_id', $userId)
+            ->where('slug', $slug)
+            ->firstOrFail();
+
+        return $this->success([
+            'page' => $page,
+        ], 'Page found successfully', 200, false);
+    } catch (\Throwable $th) {
+        return $this->error('Page not found or error: ' . $th->getMessage(), 404);
+    }
+}
 
 }

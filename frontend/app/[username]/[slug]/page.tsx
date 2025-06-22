@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import grapesjs from "grapesjs";
 import gjsBlockBasic from "grapesjs-blocks-basic";
@@ -9,24 +9,32 @@ import gjsPluginExport from "grapesjs-plugin-export";
 import gjsPresetNavbar from "grapesjs-navbar";
 import gjsPresetForms from "grapesjs-plugin-forms";
 import gjsPresetTooltip from "grapesjs-tooltip";
+import { getPageByUserIdAndSlug } from "@/services";
+import { Loader2, AlertTriangle, ArrowLeft } from "lucide-react";
 
-const PreviewPage = () => {
+const PublicPage = () => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const { username, slug } = useParams();
+  const router = useRouter();
   const [html, setHtml] = useState("");
   const [css, setCss] = useState("");
-  const { slug } = useParams();
+  const [status, setStatus] = useState<"loading" | "success" | "error">(
+    "loading"
+  );
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    const fetchPreview = async () => {
+    const fetchPage = async () => {
       try {
-        const pageRes = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/page/slug/${slug}`
-        );
-        const pageId = pageRes.data?.page?.id;
-        if (!pageId) throw new Error("Page ID not found");
+        setStatus("loading");
+        const page = await getPageByUserIdAndSlug(username, slug);
+
+        if (!page?.id) {
+          throw new Error("Page not found");
+        }
 
         const contentRes = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/page/${pageId}/content`
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/page/${page.id}/content`
         );
 
         const { pages, styles } = contentRes.data;
@@ -55,25 +63,26 @@ const PreviewPage = () => {
 
         await editor.loadProjectData({ pages, styles });
 
-        const pageHtml = editor.getHtml();
-        const pageCss = editor.getCss();
-
+        setHtml(editor.getHtml());
+        setCss(editor.getCss());
+        setStatus("success");
         editor.destroy();
-
-        setHtml(pageHtml);
-        setCss(pageCss);
       } catch (err) {
-        console.error(err);
+        console.error("Failed to load page:", err);
+        setStatus("error");
+        setErrorMessage(
+          err instanceof Error ? err.message : "Failed to load page"
+        );
       }
     };
 
-    if (slug) {
-      fetchPreview();
+    if (username && slug) {
+      fetchPage();
     }
-  }, [slug]);
+  }, [username, slug]);
 
   useEffect(() => {
-    if (!iframeRef.current || !html) return;
+    if (!iframeRef.current || !html || status !== "success") return;
 
     const styles = `
       ${css}
@@ -115,18 +124,60 @@ const PreviewPage = () => {
     `;
 
     iframeRef.current.srcdoc = fullDoc;
-  }, [html, css]);
+  }, [html, css, status]);
+
+  if (status === "loading") {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="text-center">
+          <div className="relative inline-block">
+            <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <h2 className="mt-6 text-2xl font-bold text-gray-800 dark:text-white">
+            Loading your page
+          </h2>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            This will just take a moment...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <div className=" flex items-center justify-center h-screen bg-gray-50 dark:bg-gray-900 px-4 mx-auto">
+        <div className="  flex items-center justify-center flex-col w-[400px] h-[400px] text-center p-8 rounded-2xl bg-white dark:bg-gray-800 shadow-xl">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full">
+            <AlertTriangle className="w-8 h-8 text-red-500" />
+          </div>
+
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            {errorMessage ||
+              "The page you're looking for doesn't exist or may have been removed."}
+          </p>
+          <button
+            onClick={() => router.back()}
+            className="text-sm mt-6 px-6 py-3 bg-gray-900 hover:bg-black text-white rounded-lg font-medium transition-all flex items-center justify-center mx-auto"
+          >
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-full">
       <iframe
         ref={iframeRef}
         className="w-full h-screen border-0"
-        title="Preview"
-        sandbox="allow-same-origin allow-scripts"
+        title="Page View"
+        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation-by-user-activation"
       />
     </div>
   );
 };
 
-export default PreviewPage;
+export default PublicPage;
